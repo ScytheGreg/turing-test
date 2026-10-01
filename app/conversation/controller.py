@@ -35,10 +35,20 @@ class ConversationController:
         self.audio_path: Path | None = None
 
     def start_recording(self) -> None:
-        if self.state != ConversationState.IDLE:
+        if self.state not in (
+                ConversationState.IDLE,
+                ConversationState.REVIEW,
+        ):
             raise RuntimeError(
                 f"Nie można rozpocząć nagrywania w stanie: {self.state.value}"
             )
+
+        self.transcript = None
+        self.answer = None
+        self.audio_path = None
+
+        self.recorder.start()
+        self.state = ConversationState.RECORDING
 
         self.transcript = None
         self.answer = None

@@ -245,3 +245,24 @@ def test_send_returns_to_idle_state():
     assert controller.audio_path == Path("/tmp/test-answer.wav")
 
     controller.audio_path.unlink(missing_ok=True)
+
+def test_can_record_again_from_review():
+    recorder = FakeRecorder()
+    stt = FakeSTT()
+    conversation = FakeConversation()
+
+    controller = ConversationController(
+        recorder=recorder,
+        stt=stt,
+        conversation=conversation,
+    )
+
+    controller.start_recording()
+    controller.stop_recording()
+
+    assert controller.state == ConversationState.REVIEW
+
+    controller.start_recording()
+
+    assert controller.state == ConversationState.RECORDING
+    assert controller.transcript is None
