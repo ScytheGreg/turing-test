@@ -15,3 +15,4 @@ Requires-Dist: httpx
 Requires-Dist: python-dotenv
 Requires-Dist: fastapi
 Requires-Dist: uvicorn[standard]
+Requires-Dist: piper-tts>=1.8.0

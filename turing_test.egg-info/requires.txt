@@ -10,3 +10,4 @@ httpx
 python-dotenv
 fastapi
 uvicorn[standard]
+piper-tts>=1.8.0
