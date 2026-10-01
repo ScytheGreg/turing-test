@@ -17,24 +17,32 @@ class DeepSeekClient:
         user_message: str,
         system_message: str = "Odpowiadaj krótko po polsku.",
     ) -> str:
+        messages = [
+            {
+                "role": "system",
+                "content": system_message,
+            },
+            {
+                "role": "user",
+                "content": user_message,
+            },
+        ]
+
+        return self.chat_with_history(messages)
+
+    def chat_with_history(
+        self,
+        messages: list[dict[str, str]],
+    ) -> str:
         response = httpx.post(
-            DEEPSEEK_API_URL,
+          DEEPSEEK_API_URL,
             headers={
                 "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
                 "Content-Type": "application/json",
             },
             json={
                 "model": DEEPSEEK_MODEL,
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": system_message,
-                    },
-                    {
-                        "role": "user",
-                        "content": user_message,
-                    },
-                ],
+                "messages": messages,
                 "stream": False,
             },
             timeout=60,
