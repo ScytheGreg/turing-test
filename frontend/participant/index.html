@@ -2,95 +2,51 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Turing Test</title>
-
-    <link
-        rel="stylesheet"
-        href="/participant/style.css"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turing Test — Uczestnik</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <main class="app">
-        <header class="header">
-            <h1>Turing Test</h1>
-            <p id="status" class="status">
-                Gotowy.
-            </p>
+    <div class="container">
+        <header>
+            <h1>Test Turinga</h1>
+            <div id="statusBadge" class="badge idle">Stan: Gotowy</div>
         </header>
 
-
-        <section class="recording-section">
-            <button
-                id="recordButton"
-                class="button button-primary"
-                type="button"
-            >
-                🔴 Nagraj
-            </button>
-
-            <button
-                id="stopButton"
-                class="button button-secondary"
-                type="button"
-                hidden
-            >
-                ⏹ Zatrzymaj
-            </button>
-        </section>
-
-
-
-        <section
-            id="review"
-            class="review-section"
-            hidden
-        >
-            <label for="transcript">
-                Transkrypcja
-            </label>
-
-            <textarea
-                id="transcript"
-                rows="6"
-                placeholder="Tutaj pojawi się transkrypcja..."
-            ></textarea>
-
-            <div class="actions">
-                <button
-                    id="rerecordButton"
-                    class="button button-secondary"
-                    type="button"
-                >
-                    🔄 Nagraj ponownie
+        <main>
+            <!-- Sekcja kontroli nagrywania -->
+            <section class="controls-section">
+                <button id="recordButton" class="btn btn-record">
+                    🔴 Nagraj
                 </button>
-
-                <button
-                    id="sendButton"
-                    class="button button-primary"
-                    type="button"
-                >
-                    ➡️ Wyślij
+                <button id="stopButton" class="btn btn-stop" hidden>
+                    ⏹ Zatrzymaj
                 </button>
-            </div>
-        </section>
+            </section>
 
-        <section
-            id="answer"
-            class="answer-section"
-            hidden
-        >
-            <h2>Odpowiedź</h2>
+            <!-- Sekcja podglądu i edycji transkrypcji -->
+            <section id="reviewSection" class="review-section" hidden>
+                <label for="transcriptInput">Rozpoznany tekst (możesz edytować):</label>
+                <textarea id="transcriptInput" rows="4"></textarea>
 
-            <p id="answerText"></p>
-        </section>
-    </main>
+                <div class="action-buttons">
+                    <button id="reRecordButton" class="btn btn-secondary">
+                        🔄 Nagraj ponownie
+                    </button>
+                    <button id="sendButton" class="btn btn-primary">
+                        🚀 Wyślij
+                    </button>
+                </div>
+            </section>
 
-    <script src="/participant/app.js"></script>
+            <!-- Sekcja odpowiedzi AI -->
+            <section id="responseSection" class="response-section" hidden>
+                <h3>Odpowiedź:</h3>
+                <div id="answerText" class="answer-box"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>

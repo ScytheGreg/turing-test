@@ -50,12 +50,6 @@ class ConversationController:
         self.recorder.start()
         self.state = ConversationState.RECORDING
 
-        self.transcript = None
-        self.answer = None
-
-        self.recorder.start()
-        self.state = ConversationState.RECORDING
-
     def stop_recording(self) -> str:
         if self.state != ConversationState.RECORDING:
             raise RuntimeError(
