@@ -94,3 +94,154 @@ def test_cannot_stop_when_not_recording():
         assert False
     except RuntimeError:
         pass
+
+def test_edit_transcript():
+    recorder = FakeRecorder()
+    stt = FakeSTT()
+    conversation = FakeConversation()
+
+    controller = ConversationController(
+        recorder=recorder,
+        stt=stt,
+        conversation=conversation,
+    )
+
+    controller.start_recording()
+    controller.stop_recording()
+
+    controller.edit_transcript("Poprawiona wiadomość.")
+
+    assert controller.transcript == "Poprawiona wiadomość."
+
+
+def test_send_uses_edited_transcript():
+    recorder = FakeRecorder()
+    stt = FakeSTT()
+    conversation = FakeConversation()
+
+    controller = ConversationController(
+        recorder=recorder,
+        stt=stt,
+        conversation=conversation,
+    )
+
+    controller.start_recording()
+    controller.stop_recording()
+
+    controller.edit_transcript("To jest poprawiona wiadomość.")
+
+    answer = controller.send()
+
+    assert answer == "Odpowiedź AI."
+    assert conversation.sent_messages == ["To jest poprawiona wiadomość."]
+    assert controller.state == ConversationState.IDLE
+
+
+def test_send_is_not_possible_before_review():
+    recorder = FakeRecorder()
+    stt = FakeSTT()
+    conversation = FakeConversation()
+
+    controller = ConversationController(
+        recorder=recorder,
+        stt=stt,
+        conversation=conversation,
+    )
+
+    try:
+        controller.send()
+        assert False
+    except RuntimeError:
+        pass
+
+
+class FakeTTS:
+    def __init__(self) -> None:
+        self.synthesized_texts = []
+
+    def synthesize(self, text: str) -> Path:
+        self.synthesized_texts.append(text)
+
+        path = Path("/tmp/test-answer.wav")
+        path.touch()
+
+        return path
+
+
+def test_send_generates_tts():
+    recorder = FakeRecorder()
+    stt = FakeSTT()
+    conversation = FakeConversation()
+    tts = FakeTTS()
+
+    controller = ConversationController(
+        recorder=recorder,
+        stt=stt,
+        conversation=conversation,
+        tts=tts,
+    )
+
+    controller.start_recording()
+    controller.stop_recording()
+
+    answer = controller.send()
+
+    assert answer == "Odpowiedź AI."
+    assert controller.audio_path == Path("/tmp/test-answer.wav")
+    assert tts.synthesized_texts == ["Odpowiedź AI."]
+
+    controller.audio_path.unlink(missing_ok=True)
+
+def test_send_uses_edited_transcript_and_generates_tts():
+    recorder = FakeRecorder()
+    stt = FakeSTT()
+    conversation = FakeConversation()
+    tts = FakeTTS()
+
+    controller = ConversationController(
+        recorder=recorder,
+        stt=stt,
+        conversation=conversation,
+        tts=tts,
+    )
+
+    controller.start_recording()
+    controller.stop_recording()
+
+    controller.edit_transcript("To jest poprawiona wiadomość.")
+
+    answer = controller.send()
+
+    assert answer == "Odpowiedź AI."
+    assert conversation.sent_messages == [
+        "To jest poprawiona wiadomość."
+    ]
+    assert tts.synthesized_texts == ["Odpowiedź AI."]
+
+    controller.audio_path.unlink(missing_ok=True)
+
+
+def test_send_returns_to_idle_state():
+    recorder = FakeRecorder()
+    stt = FakeSTT()
+    conversation = FakeConversation()
+    tts = FakeTTS()
+
+    controller = ConversationController(
+        recorder=recorder,
+        stt=stt,
+        conversation=conversation,
+        tts=tts,
+    )
+
+    controller.start_recording()
+    controller.stop_recording()
+
+    answer = controller.send()
+
+    assert answer == "Odpowiedź AI."
+    assert controller.state == ConversationState.IDLE
+    assert controller.answer == "Odpowiedź AI."
+    assert controller.audio_path == Path("/tmp/test-answer.wav")
+
+    controller.audio_path.unlink(missing_ok=True)
