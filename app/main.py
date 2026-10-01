@@ -1,6 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from pathlib import Path
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 from app.conversation.controller import ConversationController
 
 class TranscriptUpdate(BaseModel):
@@ -9,6 +14,21 @@ app = FastAPI(title="Turing Test")
 
 controller = ConversationController()
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+PARTICIPANT_DIR = BASE_DIR / "frontend" / "participant"
+
+app.mount(
+    "/participant",
+    StaticFiles(
+        directory=PARTICIPANT_DIR,
+        html=True,
+    ),
+    name="participant",
+)
+
+@app.get("/")
+def index() -> FileResponse:
+    return FileResponse(PARTICIPANT_DIR / "index.html")
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
