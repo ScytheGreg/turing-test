@@ -1,182 +1,164 @@
-const recordButton = document.getElementById("recordButton");
-const stopButton = document.getElementById("stopButton");
+document.addEventListener("DOMContentLoaded", () => {
+    // Elementy UI
+    const statusBadge = document.getElementById("statusBadge");
+    const recordButton = document.getElementById("recordButton");
+    const stopButton = document.getElementById("stopButton");
+    const reviewSection = document.getElementById("reviewSection");
+    const transcriptInput = document.getElementById("transcriptInput");
+    const reRecordButton = document.getElementById("reRecordButton");
+    const sendButton = document.getElementById("sendButton");
+    const responseSection = document.getElementById("responseSection");
+    const answerText = document.getElementById("answerText");
 
-const rerecordButton = document.getElementById("rerecordButton");
-const sendButton = document.getElementById("sendButton");
+    // Rejestracja zdarzeń
+    recordButton.addEventListener("click", startRecording);
+    stopButton.addEventListener("click", stopRecording);
+    reRecordButton.addEventListener("click", cancelRecording);
+    sendButton.addEventListener("click", sendMessage);
 
-const statusElement = document.getElementById("status");
-const reviewSection = document.getElementById("review");
-const transcriptElement = document.getElementById("transcript");
+    // Pobranie bieżącego stanu z backendu przy starcie
+    fetchState();
 
-const answerSection = document.getElementById("answer");
-const answerTextElement = document.getElementById("answerText");
-
-
-function setStatus(message) {
-    statusElement.textContent = message;
-}
-
-
-function showRecordingControls() {
-    recordButton.hidden = false;
-    stopButton.hidden = true;
-}
-
-
-function showStopControl() {
-    recordButton.hidden = true;
-    stopButton.hidden = false;
-}
-
-
-async function startRecording() {
-    recordButton.disabled = true;
-
-    const response = await fetch("/api/record/start", {
-        method: "POST",
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        recordButton.disabled = false;
-        throw new Error(data.detail);
+    async function fetchState() {
+        try {
+            const res = await fetch("/api/state");
+            const data = await res.json();
+            updateUI(data.state, data.transcript, data.answer);
+        } catch (err) {
+            console.error("Błąd pobierania stanu:", err);
+        }
     }
 
-    showStopControl();
-
-    recordButton.disabled = false;
-
-    setStatus("🔴 Nagrywanie...");
-}
-
-
-async function stopRecording() {
-    stopButton.disabled = true;
-
-    setStatus("⏳ Rozpoznawanie mowy...");
-
-    const response = await fetch("/api/record/stop", {
-        method: "POST",
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        stopButton.disabled = false;
-        throw new Error(data.detail);
+    async function startRecording() {
+        try {
+            recordButton.disabled = true;
+            const res = await fetch("/api/record/start", { method: "POST" });
+            if (res.ok) {
+                updateUI("recording");
+            } else {
+                alert("Nie udało się rozpocząć nagrywania.");
+                fetchState();
+            }
+        } catch (err) {
+            console.error("Błąd startu nagrywania:", err);
+            fetchState();
+        } finally {
+            recordButton.disabled = false;
+        }
     }
 
-    showRecordingControls();
+    async function stopRecording() {
+        try {
+            stopButton.disabled = true;
+            updateUI("transcribing");
 
-    transcriptElement.value = data.transcript;
+            const res = await fetch("/api/record/stop", { method: "POST" });
+            const data = await res.json();
 
-    reviewSection.hidden = false;
-
-    stopButton.disabled = false;
-
-    setStatus("📝 Sprawdź transkrypcję.");
-}
-
-
-async function updateTranscript() {
-    const text = transcriptElement.value.trim();
-
-    if (!text) {
-        throw new Error("Transkrypcja nie może być pusta.");
+            if (res.ok) {
+                updateUI("review", data.transcript);
+            } else {
+                alert("Błąd rozpoznawania mowy.");
+                fetchState();
+            }
+        } catch (err) {
+            console.error("Błąd zatrzymywania nagrywania:", err);
+            fetchState();
+        } finally {
+            stopButton.disabled = false;
+        }
     }
 
-    const response = await fetch("/api/transcript", {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            text: text,
-        }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.detail);
-    }
-}
-
-
-async function sendMessage() {
-    await updateTranscript();
-
-    setStatus("⏳ Generowanie odpowiedzi...");
-
-    sendButton.disabled = true;
-    rerecordButton.disabled = true;
-
-    const response = await fetch("/api/send", {
-        method: "POST",
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.detail);
+    async function cancelRecording() {
+        try {
+            await fetch("/api/cancel", { method: "POST" });
+            updateUI("idle");
+        } catch (err) {
+            console.error("Błąd anulowania:", err);
+        }
     }
 
-    answerTextElement.textContent = data.answer;
-    answerSection.hidden = false;
+    async function sendMessage() {
+        try {
+            sendButton.disabled = true;
+            reRecordButton.disabled = true;
 
-    setStatus("✅ Gotowe.");
-}
+            // Najpierw aktualizujemy ewentualnie poprawioną transkrypcję
+            const text = transcriptInput.value.trim();
+            await fetch("/api/transcript", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: text })
+            });
 
+            updateUI("sending");
 
-function rerecord() {
-    reviewSection.hidden = true;
-    answerSection.hidden = true;
+            // Wysłanie wiadomości do LLM
+            const res = await fetch("/api/send", { method: "POST" });
+            const data = await res.json();
 
-    transcriptElement.value = "";
-
-    sendButton.disabled = false;
-    rerecordButton.disabled = false;
-
-    showRecordingControls();
-
-    setStatus("Gotowy do ponownego nagrania.");
-}
-
-
-recordButton.addEventListener("click", async () => {
-    try {
-        await startRecording();
-    } catch (error) {
-        setStatus(`❌ ${error.message}`);
+            if (res.ok) {
+                // data odpowiada strukturze zwracanej przez FastAPI
+                const answer = typeof data === "string" ? data : data.answer;
+                updateUI("idle", null, answer);
+            } else {
+                alert("Błąd podczas wysyłania wiadomości.");
+                fetchState();
+            }
+        } catch (err) {
+            console.error("Błąd wysyłania:", err);
+            fetchState();
+        } finally {
+            sendButton.disabled = false;
+            reRecordButton.disabled = false;
+        }
     }
-});
 
+    function updateUI(state, transcript = null, answer = null) {
+        const normalizedState = (state || "idle").toLowerCase();
 
-stopButton.addEventListener("click", async () => {
-    try {
-        await stopRecording();
-    } catch (error) {
-        setStatus(`❌ ${error.message}`);
-    }
-});
+        // 1. Aktualizacja Badge stanu
+        statusBadge.className = `badge ${normalizedState}`;
 
+        const stateLabels = {
+            idle: "Stan: Gotowy",
+            recording: "Stan: Nagrywanie...",
+            transcribing: "Stan: Transkrypcja...",
+            review: "Stan: Sprawdź tekst",
+            sending: "Stan: Wysyłanie..."
+        };
+        statusBadge.textContent = stateLabels[normalizedState] || `Stan: ${normalizedState}`;
 
-rerecordButton.addEventListener("click", () => {
-    rerecord();
-});
+        // 2. Sterowanie widocznością sekcji i przycisków
+        if (normalizedState === "idle") {
+            recordButton.hidden = false;
+            stopButton.hidden = true;
+            reviewSection.hidden = true;
+        } else if (normalizedState === "recording") {
+            recordButton.hidden = true;
+            stopButton.hidden = false;
+            reviewSection.hidden = true;
+        } else if (normalizedState === "transcribing") {
+            recordButton.hidden = true;
+            stopButton.hidden = true;
+            reviewSection.hidden = true;
+        } else if (normalizedState === "review") {
+            recordButton.hidden = true;
+            stopButton.hidden = true;
+            reviewSection.hidden = false;
+            if (transcript !== null) {
+                transcriptInput.value = transcript;
+            }
+        } else if (normalizedState === "sending") {
+            recordButton.hidden = true;
+            stopButton.hidden = true;
+            reviewSection.hidden = true;
+        }
 
-
-sendButton.addEventListener("click", async () => {
-    try {
-        await sendMessage();
-    } catch (error) {
-        sendButton.disabled = false;
-        rerecordButton.disabled = false;
-
-        setStatus(`❌ ${error.message}`);
+        // 3. Obsługa sekcji z odpowiedzią AI
+        if (answer) {
+            responseSection.hidden = false;
+            answerText.textContent = answer;
+        }
     }
 });
-
-
-showRecordingControls();
