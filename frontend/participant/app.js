@@ -98,9 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (res.ok) {
-                // data odpowiada strukturze zwracanej przez FastAPI
-                const answer = typeof data === "string" ? data : data.answer;
-                updateUI("idle", null, answer);
+                updateUI("idle", null, data.answer);
+
+                // Odtwarzanie dźwięku wygenerowanego przez Piper TTS
+                if (data.audio_path) {
+                    const audio = new Audio(data.audio_path);
+                    audio.play().catch(err => console.error("Błąd odtwarzania audio:", err));
+                }
             } else {
                 alert("Błąd podczas wysyłania wiadomości.");
                 fetchState();
