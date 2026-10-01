@@ -1,32 +1,42 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-
+import os
+import tempfile
 from pathlib import Path
-
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from app.conversation.controller import ConversationController
 
-import os
 
 class TranscriptUpdate(BaseModel):
     text: str
+
+
 app = FastAPI(title="Turing Test")
 
-controller = ConversationController()
+# Słownik przechowujący osobne kontrolery dla Alice i Boba
+controllers: dict[str, ConversationController] = {
+    "alice": ConversationController(),
+    "bob": ConversationController(),
+}
+
+
+def get_controller(session_id: str) -> ConversationController:
+    sid = session_id.lower()
+    if sid not in controllers:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Nieznana sesja: {session_id}. Dostępne: alice, bob"
+        )
+    return controllers[sid]
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PARTICIPANT_DIR = BASE_DIR / "frontend" / "participant"
 
-# Pobieramy rodzica pliku wav z controller.audio_path lub folder wyżej
-# Jeśli controller zapisuje w tempfile.gettempdir(), używamy rodzica z audio_path
-if controller.audio_path:
-    AUDIO_DIR = Path(controller.audio_path).parent
-else:
-    import tempfile
-    AUDIO_DIR = Path(tempfile.gettempdir())
-
+# Domyślny folder dla audio (będzie obsługiwać pliki tymczasowe)
+AUDIO_DIR = Path(tempfile.gettempdir())
 app.mount("/audio", StaticFiles(directory=str(AUDIO_DIR)), name="audio")
 
 app.mount(
@@ -38,85 +48,96 @@ app.mount(
     name="participant",
 )
 
+
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(PARTICIPANT_DIR / "index.html")
+
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/api/state")
-def get_state() -> dict[str, str | None]:
+@app.get("/api/session/{session_id}/state")
+def get_state(session_id: str) -> dict[str, str | None]:
+    ctrl = get_controller(session_id)
     return {
-        "state": controller.state.value,
-        "transcript": controller.transcript,
-        "answer": controller.answer,
+        "state": ctrl.state.value,
+        "transcript": ctrl.transcript,
+        "answer": ctrl.answer,
     }
 
 
-@app.post("/api/record/start")
-def start_recording() -> dict[str, str]:
+@app.post("/api/session/{session_id}/record/start")
+def start_recording(session_id: str) -> dict[str, str]:
+    ctrl = get_controller(session_id)
     try:
-        controller.start_recording()
+        ctrl.start_recording()
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     return {
-        "state": controller.state.value,
+        "state": ctrl.state.value,
     }
 
 
-@app.post("/api/record/stop")
-def stop_recording() -> dict[str, str]:
+@app.post("/api/session/{session_id}/record/stop")
+def stop_recording(session_id: str) -> dict[str, str]:
+    ctrl = get_controller(session_id)
     try:
-        transcript = controller.stop_recording()
+        transcript = ctrl.stop_recording()
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     return {
-        "state": controller.state.value,
+        "state": ctrl.state.value,
         "transcript": transcript,
     }
 
-@app.post("/api/send")
-def send_message() -> dict[str, str | None]:
+
+@app.post("/api/session/{session_id}/send")
+def send_message(session_id: str) -> dict[str, str | None]:
+    ctrl = get_controller(session_id)
     try:
-        answer = controller.send()
+        answer = ctrl.send()
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     # Konwersja ścieżki pliku na URL dla przeglądarki (/audio/nazwa_pliku.wav)
     audio_url = None
-    if controller.audio_path is not None:
-        filename = Path(controller.audio_path).name
+    if ctrl.audio_path is not None:
+        filename = Path(ctrl.audio_path).name
         audio_url = f"/audio/{filename}"
 
     return {
-        "state": controller.state.value,
+        "state": ctrl.state.value,
         "answer": answer,
-        "audio_path": audio_url,  # Zwracamy czysty URL dla frontendu
+        "audio_path": audio_url,
     }
 
-@app.put("/api/transcript")
-def update_transcript(data: TranscriptUpdate) -> dict[str, str | None]:
+
+@app.put("/api/session/{session_id}/transcript")
+def update_transcript(session_id: str, data: TranscriptUpdate) -> dict[str, str | None]:
+    ctrl = get_controller(session_id)
     try:
-        controller.edit_transcript(data.text)
+        ctrl.edit_transcript(data.text)
     except (RuntimeError, ValueError) as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     return {
-        "state": controller.state.value,
-        "transcript": controller.transcript,
+        "state": ctrl.state.value,
+        "transcript": ctrl.transcript,
     }
 
-@app.post("/api/cancel")
-def cancel() -> dict[str, str | None]:
-    controller.cancel()
+
+@app.post("/api/session/{session_id}/cancel")
+def cancel(session_id: str) -> dict[str, str | None]:
+    ctrl = get_controller(session_id)
+    ctrl.cancel()
 
     return {
-        "state": controller.state.value,
-        "transcript": controller.transcript,
-        "answer": controller.answer,
+        "state": ctrl.state.value,
+        "transcript": ctrl.transcript,
+        "answer": ctrl.answer,
     }

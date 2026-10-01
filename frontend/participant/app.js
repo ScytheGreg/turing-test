@@ -1,4 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. Odczytanie identyfikatora sesji z URL (domyślnie 'alice')
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = (urlParams.get("session") || "alice").toLowerCase();
+
+    // Wyświetlenie nazwy wybranej sesji w nagłówku
+    const headerTitle = document.querySelector("h1");
+    if (headerTitle) {
+        headerTitle.textContent = `Test Turinga — Rozmowa: ${sessionId.toUpperCase()}`;
+    }
+
+    // Adres bazowy dla wybranych endpointów sesji
+    const apiBase = `/api/session/${sessionId}`;
+
     // Elementy UI
     const statusBadge = document.getElementById("statusBadge");
     const recordButton = document.getElementById("recordButton");
@@ -16,12 +29,12 @@ document.addEventListener("DOMContentLoaded", () => {
     reRecordButton.addEventListener("click", cancelRecording);
     sendButton.addEventListener("click", sendMessage);
 
-    // Pobranie bieżącego stanu z backendu przy starcie
+    // Pobranie stanu przy starcie
     fetchState();
 
     async function fetchState() {
         try {
-            const res = await fetch("/api/state");
+            const res = await fetch(`${apiBase}/state`);
             const data = await res.json();
             updateUI(data.state, data.transcript, data.answer);
         } catch (err) {
@@ -32,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function startRecording() {
         try {
             recordButton.disabled = true;
-            const res = await fetch("/api/record/start", { method: "POST" });
+            const res = await fetch(`${apiBase}/record/start`, { method: "POST" });
             if (res.ok) {
                 updateUI("recording");
             } else {
@@ -52,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
             stopButton.disabled = true;
             updateUI("transcribing");
 
-            const res = await fetch("/api/record/stop", { method: "POST" });
+            const res = await fetch(`${apiBase}/record/stop`, { method: "POST" });
             const data = await res.json();
 
             if (res.ok) {
@@ -71,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function cancelRecording() {
         try {
-            await fetch("/api/cancel", { method: "POST" });
+            await fetch(`${apiBase}/cancel`, { method: "POST" });
             updateUI("idle");
         } catch (err) {
             console.error("Błąd anulowania:", err);
@@ -83,9 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
             sendButton.disabled = true;
             reRecordButton.disabled = true;
 
-            // Najpierw aktualizujemy ewentualnie poprawioną transkrypcję
             const text = transcriptInput.value.trim();
-            await fetch("/api/transcript", {
+            await fetch(`${apiBase}/transcript`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: text })
@@ -93,14 +105,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             updateUI("sending");
 
-            // Wysłanie wiadomości do LLM
-            const res = await fetch("/api/send", { method: "POST" });
+            const res = await fetch(`${apiBase}/send`, { method: "POST" });
             const data = await res.json();
 
             if (res.ok) {
                 updateUI("idle", null, data.answer);
 
-                // Odtwarzanie dźwięku wygenerowanego przez Piper TTS
                 if (data.audio_path) {
                     const audio = new Audio(data.audio_path);
                     audio.play().catch(err => console.error("Błąd odtwarzania audio:", err));
@@ -121,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateUI(state, transcript = null, answer = null) {
         const normalizedState = (state || "idle").toLowerCase();
 
-        // 1. Aktualizacja Badge stanu
         statusBadge.className = `badge ${normalizedState}`;
 
         const stateLabels = {
@@ -133,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         statusBadge.textContent = stateLabels[normalizedState] || `Stan: ${normalizedState}`;
 
-        // 2. Sterowanie widocznością sekcji i przycisków
         if (normalizedState === "idle") {
             recordButton.hidden = false;
             stopButton.hidden = true;
@@ -159,7 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
             reviewSection.hidden = true;
         }
 
-        // 3. Obsługa sekcji z odpowiedzią AI
         if (answer) {
             responseSection.hidden = false;
             answerText.textContent = answer;
