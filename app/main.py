@@ -122,7 +122,7 @@ def stop_recording(session_id: str) -> dict[str, str]:
 
 
 @app.post("/api/session/{session_id}/send")
-def send_message(session_id: str) -> dict[str, str | None]:
+async def send_message(session_id: str) -> dict[str, str | None]:
     ctrl = get_controller(session_id)
     try:
         answer = ctrl.send()
@@ -131,9 +131,30 @@ def send_message(session_id: str) -> dict[str, str | None]:
 
     # Konwersja ścieżki pliku na URL dla przeglądarki (/audio/nazwa_pliku.wav)
     audio_url = None
+
     if ctrl.audio_path is not None:
         filename = Path(ctrl.audio_path).name
         audio_url = f"/audio/{filename}"
+
+    await connection_manager.send_to_session(
+        session_id,
+        {
+            "type": "assistant_message",
+            "session_id": session_id,
+            "text": answer,
+        },
+    )
+
+    await connection_manager.send_to_session(
+        session_id,
+        {
+            "type": "audio_ready",
+            "session_id": session_id,
+            "audio_url": audio_url,
+            "voice": "alice",
+        },
+    )
+
 
     return {
         "state": ctrl.state.value,

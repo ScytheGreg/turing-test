@@ -50,7 +50,8 @@ function connectSession(sessionId, messagesElementId) {
 
         if (
             message.type !== "user_message" &&
-            message.type !== "human_reply"
+            message.type !== "human_reply" &&
+            message.type !== "assistant_message"
         ) {
             return;
         }
