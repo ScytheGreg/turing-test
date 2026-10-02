@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from app.conversation.controller import ConversationController
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from app.realtime.manager import ConnectionManager
+from app.tts.piper import PiperTTS
 
 
 class TranscriptUpdate(BaseModel):
@@ -18,6 +19,7 @@ class TranscriptUpdate(BaseModel):
 app = FastAPI(title="Turing Test")
 
 connection_manager = ConnectionManager()
+tts = PiperTTS()
 
 # Słownik przechowujący osobne kontrolery dla Alice i Boba
 controllers: dict[str, ConversationController] = {
@@ -190,6 +192,17 @@ async def websocket_endpoint(
             message_type = data.get("type", "user_message")
 
             if message_type == "human_reply":
+                if session_id.lower() != "bob":
+                    continue
+
+                audio_path = tts.synthesize(
+                    text,
+                    voice="bob",
+                )
+
+                filename = Path(audio_path).name
+                audio_url = f"/audio/{filename}"
+
                 await connection_manager.send_to_session(
                     session_id,
                     {
@@ -198,6 +211,17 @@ async def websocket_endpoint(
                         "text": text,
                     },
                 )
+
+                await connection_manager.send_to_session(
+                    session_id,
+                    {
+                        "type": "audio_ready",
+                        "session_id": session_id,
+                        "audio_url": audio_url,
+                        "voice": "bob",
+                    },
+                )
+
                 continue
 
             await connection_manager.send_to_session(

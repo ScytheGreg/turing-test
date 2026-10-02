@@ -1,5 +1,16 @@
+let audioEnabled = false;
+
+document.getElementById("enableAudio").addEventListener("click", () => {
+    audioEnabled = true;
+
+    document.getElementById("enableAudio").textContent = "🔊 Dźwięk włączony";
+    document.getElementById("enableAudio").disabled = true;
+});
+
+
 function connectSession(sessionId, messagesElementId) {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+
     const ws = new WebSocket(
         `${protocol}//${window.location.host}/ws/${sessionId}`
     );
@@ -14,6 +25,28 @@ function connectSession(sessionId, messagesElementId) {
         const message = JSON.parse(event.data);
 
         console.log(`Display event [${sessionId}]:`, message);
+
+        if (message.type === "audio_ready") {
+            if (!audioEnabled) {
+                console.warn("Dźwięk nie został jeszcze włączony.");
+                return;
+            }
+
+            const audio = new Audio(
+                new URL(message.audio_url, window.location.origin).href
+            );
+
+            console.log("Odtwarzam audio:", audio.src);
+
+            audio.play().catch((error) => {
+                console.error(
+                    `Błąd odtwarzania audio [${sessionId}]:`,
+                    error
+                );
+            });
+
+            return;
+        }
 
         if (
             message.type !== "user_message" &&
