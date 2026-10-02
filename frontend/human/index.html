@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uczestnik</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="human-panel">
+        <h1>Uczestnik</h1>
+
+        <div id="connectionStatus" class="status">
+            Łączenie...
+        </div>
+
+        <section id="conversation" class="conversation"></section>
+
+        <form id="messageForm" class="message-form">
+            <textarea
+                id="messageInput"
+                placeholder="Wpisz odpowiedź..."
+                rows="4"
+                disabled
+            ></textarea>
+
+            <button id="sendButton" type="submit" disabled>
+                Wyślij
+            </button>
+        </form>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
