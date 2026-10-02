@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrukcja uruchomienia – Test Turinga</title>
+
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 40px 20px;
+        background: #111827;
+        color: #e5e7eb;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        margin-bottom: 8px;
+        color: #ffffff;
+    }
+
+    h2 {
+        margin-top: 40px;
+        color: #93c5fd;
+    }
+
+    h3 {
+        color: #dbeafe;
+    }
+
+    .subtitle {
+        margin-top: 0;
+        color: #9ca3af;
+    }
+
+    .card {
+        background: #1f2937;
+        border: 1px solid #374151;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 20px 0;
+    }
+
+    .important {
+        border-left: 4px solid #f59e0b;
+    }
+
+    .success {
+        border-left: 4px solid #22c55e;
+    }
+
+    .info {
+        border-left: 4px solid #3b82f6;
+    }
+
+    code {
+        background: #111827;
+        padding: 3px 6px;
+        border-radius: 5px;
+        color: #93c5fd;
+    }
+
+    pre {
+        background: #0b1120;
+        border: 1px solid #374151;
+        border-radius: 8px;
+        padding: 16px;
+        overflow-x: auto;
+        color: #d1d5db;
+    }
+
+    .link {
+        display: block;
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin: 10px 0;
+        color: #93c5fd;
+        text-decoration: none;
+    }
+
+    .link:hover {
+        border-color: #60a5fa;
+        background: #172033;
+    }
+
+    .label {
+        display: inline-block;
+        min-width: 110px;
+        color: #9ca3af;
+    }
+
+    .url {
+        color: #60a5fa;
+        word-break: break-all;
+    }
+
+    .step {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #ffffff;
+    }
+
+    ul {
+        padding-left: 24px;
+    }
+
+    .small {
+        color: #9ca3af;
+        font-size: 0.9rem;
+    }
+
+    .status {
+        color: #86efac;
+        font-weight: bold;
+    }
+</style>
+
+</head>
+
+<body>
+<div class="container">
+
+
+<h1>Instrukcja uruchomienia – Test Turinga</h1>
+<p class="subtitle">
+    Lokalny backend FastAPI + Whisper + DeepSeek + Piper + Cloudflare Tunnel
+</p>
+
+<div class="card success">
+    <strong>Najprostszy sposób uruchomienia:</strong>
+
+    <pre>cd ~/PycharmProjects/turing-test
+
+
+./scripts/start.sh</pre>
+
+
+    <p>
+        Skrypt automatycznie:
+    </p>
+
+    <ul>
+        <li>sprawdza Cloudflare Tunnel,</li>
+        <li>sprawdza GPU / CUDA,</li>
+        <li>sprawdza mikrofon,</li>
+        <li>sprawdza modele Piper,</li>
+        <li>sprawdza konfigurację DeepSeek,</li>
+        <li>sprawdza import aplikacji FastAPI,</li>
+        <li>uruchamia serwer FastAPI.</li>
+    </ul>
+
+    <p>
+        Nie trzeba ręcznie uruchamiać <code>cloudflared</code>,
+        aktywować środowiska ani wykonywać <code>source scripts/env.sh</code>.
+    </p>
+</div>
+
+
+<h2>1. Uruchomienie aplikacji</h2>
+
+<div class="card">
+    <p class="step">W terminalu:</p>
+
+    <pre>cd ~/PycharmProjects/turing-test
+
+
+./scripts/start.sh</pre>
+
+
+    <p>
+        Jeśli wszystko jest poprawnie skonfigurowane, na końcu powinien pojawić się komunikat:
+    </p>
+
+    <pre>✓ Wszystko wygląda poprawnie.
+    
+
+Możesz uruchomić aplikację:
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000</pre>
+
+    <p>
+        Następnie aplikacja będzie dostępna lokalnie i przez domenę
+        <code>turing-test.pl</code>.
+    </p>
+</div>
+
+
+<h2>2. Zatrzymanie aplikacji</h2>
+
+<div class="card">
+    <p>
+        Serwer FastAPI działa w aktywnym terminalu.
+    </p>
+
+    <pre>Ctrl + C</pre>
+
+    <p>
+        Zatrzymuje to aplikację.
+        Cloudflare Tunnel pozostaje usługą systemową i nie trzeba go zatrzymywać.
+    </p>
+
+    <p class="small">
+        Cloudflare Tunnel jest skonfigurowany jako usługa systemowa Linux,
+        dzięki czemu może działać niezależnie od procesu FastAPI.
+    </p>
+</div>
+
+
+<h2>3. Panel uczestnika – prowadzący</h2>
+
+<div class="card">
+    <p>
+        Panel służy do prowadzenia rozmowy z wybranym uczestnikiem.
+    </p>
+
+    <a class="link" href="https://turing-test.pl/participant/?session=alice">
+        <span class="label">Alice:</span>
+        <span class="url">https://turing-test.pl/participant/?session=alice</span>
+    </a>
+
+    <a class="link" href="https://turing-test.pl/participant/?session=bob">
+        <span class="label">Bob:</span>
+        <span class="url">https://turing-test.pl/participant/?session=bob</span>
+    </a>
+
+    <div class="card important">
+        <strong>Uwaga:</strong>
+        <p>
+            Panel <code>/participant</code> jest zabezpieczony przez
+            Cloudflare Access.
+        </p>
+
+        <p>
+            Dostęp powinien mieć tylko prowadzący, ponieważ panel może
+            wysyłać zapytania do API DeepSeek.
+        </p>
+    </div>
+</div>
+
+
+<h2>4. Panel człowieka</h2>
+
+<div class="card">
+    <p>
+        Ten adres przekazujemy prawdziwemu uczestnikowi rozmowy.
+    </p>
+
+    <a class="link" href="https://turing-test.pl/human/?session=bob">
+        <span class="label">Uczestnik:</span>
+        <span class="url">https://turing-test.pl/human/?session=bob</span>
+    </a>
+
+    <p>
+        Panel człowieka jest publiczny i nie wymaga logowania.
+    </p>
+
+    <p class="small">
+        Aktualnie uczestnik odpowiada tekstowo. W przyszłości można tutaj
+        dodać również nagrywanie głosu.
+    </p>
+</div>
+
+
+<h2>5. Ekran / projektor</h2>
+
+<div class="card">
+    <p>
+        Na komputerze podłączonym do projektora otwieramy:
+    </p>
+
+    <a class="link" href="https://turing-test.pl/display/">
+        <span class="label">Display:</span>
+        <span class="url">https://turing-test.pl/display/</span>
+    </a>
+
+    <p>
+        Ekran pokazuje dwie rozmowy jednocześnie.
+        Strony mogą być dowolnie przypisane do Alice i Boba.
+    </p>
+</div>
+
+
+<h2>6. Przykładowe ustawienie sceny</h2>
+
+<div class="card">
+    <p>
+        Przykład:
+    </p>
+
+    <pre>https://turing-test.pl/display/?left=bob&amp;leftName=Kasia&amp;right=alice&amp;rightName=Tomek</pre>
+
+    <p>
+        W tym przypadku:
+    </p>
+
+    <ul>
+        <li>lewa strona = Bob, wyświetlana jako „Kasia”,</li>
+        <li>prawa strona = Alice, wyświetlana jako „Tomek”.</li>
+    </ul>
+
+    <p>
+        Można oczywiście zamienić strony:
+    </p>
+
+    <pre>https://turing-test.pl/display/?left=alice&amp;leftName=Kasia&amp;right=bob&amp;rightName=Tomek</pre>
+</div>
+
+
+<h2>7. Typowy przebieg pokazu</h2>
+
+<div class="card">
+    <ol>
+        <li>Uruchom komputer.</li>
+        <li>Otwórz terminal.</li>
+        <li>Uruchom <code>./scripts/start.sh</code>.</li>
+        <li>Na komputerze prowadzącego otwórz panel <code>/participant</code>.</li>
+        <li>Na telefonie / laptopie prawdziwego uczestnika otwórz <code>/human/?session=bob</code>.</li>
+        <li>Na projektorze otwórz <code>/display/</code>.</li>
+        <li>Włącz dźwięk na ekranie projektu.</li>
+        <li>Rozpocznij rozmowę.</li>
+        <li>Publiczność obserwuje obie rozmowy i próbuje rozpoznać, która jest prowadzona przez AI.</li>
+    </ol>
+</div>
+
+
+<h2>8. Szybka diagnostyka</h2>
+
+<div class="card">
+    <p>
+        Jeśli coś nie działa, można uruchomić samą diagnostykę bez startowania serwera:
+    </p>
+
+    <pre>cd ~/PycharmProjects/turing-test
+
+source .venv/bin/activate
+source scripts/env.sh
+uv run python scripts/check_setup.py</pre>
+
+    <p>
+        Skrypt sprawdza:
+    </p>
+
+    <ul>
+        <li>wersję Pythona,</li>
+        <li>GPU / CUDA,</li>
+        <li>mikrofon,</li>
+        <li>modele Piper,</li>
+        <li>klucz DeepSeek,</li>
+        <li>import aplikacji FastAPI.</li>
+    </ul>
+</div>
+
+
+<h2>9. Przydatne adresy lokalne</h2>
+
+<div class="card">
+
+    <a class="link" href="http://127.0.0.1:8000/api/health">
+        <span class="label">Health:</span>
+        <span class="url">http://127.0.0.1:8000/api/health</span>
+    </a>
+
+    <a class="link" href="http://127.0.0.1:8000/docs">
+        <span class="label">API docs:</span>
+        <span class="url">http://127.0.0.1:8000/docs</span>
+    </a>
+
+    <p class="small">
+        Endpoint health powinien zwrócić:
+        <code>{"status":"ok"}</code>
+    </p>
+</div>
+
+
+<h2>10. Cloudflare Tunnel</h2>
+
+<div class="card info">
+    <p>
+        Tunnel działa jako usługa systemowa.
+    </p>
+
+    <p>
+        Status można sprawdzić poleceniem:
+    </p>
+
+    <pre>sudo systemctl status cloudflared</pre>
+
+    <p>
+        Jeśli z jakiegoś powodu usługa nie działa:
+    </p>
+
+    <pre>sudo systemctl start cloudflared</pre>
+
+    <p class="small">
+        Normalnie nie trzeba tego robić ręcznie — <code>scripts/start.sh</code>
+        sam sprawdza status i uruchamia usługę, jeśli jest zatrzymana.
+    </p>
+</div>
+
+
+<div class="card success">
+    <strong>Gotowe.</strong>
+
+    <p>
+        W normalnym użyciu wystarczy:
+    </p>
+
+    <pre>cd ~/PycharmProjects/turing-test
+
+./scripts/start.sh</pre>
+
+    <p>
+        Reszta konfiguracji uruchamia się automatycznie.
+    </p>
+</div>
+
+</div>
+</body>
+</html>
+

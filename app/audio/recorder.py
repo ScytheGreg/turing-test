@@ -5,7 +5,7 @@ import numpy as np
 import sounddevice as sd
 from scipy.io.wavfile import write
 
-from app.config import MIC_DEVICE, SAMPLE_RATE
+from app.config import MIC_CHANNELS, MIC_DEVICE_NAME, SAMPLE_RATE
 
 
 class AudioRecorder:
@@ -29,17 +29,46 @@ class AudioRecorder:
 
         self._chunks.append(indata.copy())
 
+    def _find_microphone(self) -> str:
+        try:
+            device = sd.query_devices(
+                MIC_DEVICE_NAME,
+                kind="input",
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                f"Nie znaleziono mikrofonu zawierającego nazwę "
+                f"'{MIC_DEVICE_NAME}'."
+            ) from exc
+
+        if device["max_input_channels"] < MIC_CHANNELS:
+            raise RuntimeError(
+                f"Urządzenie '{device['name']}' nie ma wystarczającej "
+                f"liczby kanałów wejściowych. "
+                f"Wymagane: {MIC_CHANNELS}, "
+                f"dostępne: {device['max_input_channels']}."
+            )
+
+        print(
+            f"Mikrofon: {device['name']} "
+            f"(input channels: {device['max_input_channels']})"
+        )
+
+        return device["name"]
+
     def start(self) -> None:
         if self.is_recording:
             raise RuntimeError("Nagrywanie już trwa.")
 
         self._chunks = []
 
+        microphone = self._find_microphone()
+
         self._stream = sd.InputStream(
             samplerate=SAMPLE_RATE,
-            channels=1,
+            channels=MIC_CHANNELS,
             dtype="int16",
-            device=MIC_DEVICE,
+            device=microphone,
             callback=self._callback,
         )
 

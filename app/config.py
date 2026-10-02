@@ -24,7 +24,8 @@ DEEPSEEK_MODEL = "deepseek-flash"
 # =========================
 
 SAMPLE_RATE = 48_000
-MIC_DEVICE = 4
+MIC_DEVICE_NAME = "ALC257 Analog"
+MIC_CHANNELS = 1
 
 
 # =========================
