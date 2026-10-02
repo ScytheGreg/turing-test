@@ -72,8 +72,8 @@ body {
 }
 
 .message {
-    width: min(90%, 850px);
-
+    width: fit-content;
+    max-width: 85%;
     margin-bottom: 22px;
     padding: 20px 24px;
 
