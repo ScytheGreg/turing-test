@@ -124,18 +124,47 @@ def stop_recording(session_id: str) -> dict[str, str]:
 @app.post("/api/session/{session_id}/send")
 async def send_message(session_id: str) -> dict[str, str | None]:
     ctrl = get_controller(session_id)
+
+    transcript = ctrl.transcript
+
+    if not transcript:
+        raise HTTPException(
+            status_code=409,
+            detail="Brak transkrypcji do wysłania.",
+        )
+
+    # Najpierw generujemy głos prowadzącego.
+    host_audio_path = ctrl.tts.synthesize(
+        transcript,
+        voice="host",
+    )
+
+    host_audio_url = f"/audio/{Path(host_audio_path).name}"
+
+    # Wysyłamy audio prowadzącego na display.
+    await connection_manager.send_to_session(
+        session_id,
+        {
+            "type": "audio_ready",
+            "session_id": session_id,
+            "audio_url": host_audio_url,
+            "voice": "host",
+        },
+    )
+
+    # Dopiero teraz pytamy LLM i generujemy odpowiedź Alice.
     try:
         answer = ctrl.send()
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    # Konwersja ścieżki pliku na URL dla przeglądarki (/audio/nazwa_pliku.wav)
     audio_url = None
 
     if ctrl.audio_path is not None:
         filename = Path(ctrl.audio_path).name
         audio_url = f"/audio/{filename}"
 
+    # Odpowiedź Alice pojawia się na display.
     await connection_manager.send_to_session(
         session_id,
         {
@@ -145,6 +174,7 @@ async def send_message(session_id: str) -> dict[str, str | None]:
         },
     )
 
+    # Głos Alice.
     await connection_manager.send_to_session(
         session_id,
         {
@@ -155,12 +185,12 @@ async def send_message(session_id: str) -> dict[str, str | None]:
         },
     )
 
-
     return {
         "state": ctrl.state.value,
         "answer": answer,
         "audio_path": audio_url,
     }
+
 
 
 @app.put("/api/session/{session_id}/transcript")
@@ -254,6 +284,25 @@ async def websocket_endpoint(
                     "sender": "host",
                 },
             )
+
+            if session_id.lower() == "bob":
+                audio_path = tts.synthesize(
+                    text,
+                    voice="host",
+                )
+
+                filename = Path(audio_path).name
+                audio_url = f"/audio/{filename}"
+
+                await connection_manager.send_to_session(
+                    session_id,
+                    {
+                        "type": "audio_ready",
+                        "session_id": session_id,
+                        "audio_url": audio_url,
+                        "voice": "host",
+                    },
+                )
 
     except WebSocketDisconnect:
         connection_manager.disconnect(
