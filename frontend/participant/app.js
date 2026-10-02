@@ -115,6 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
             ws.send(JSON.stringify({
                 text: text
             }));
+            if (sessionId === "bob") {
+                updateUI("idle");
+                 return;
+            }
             await fetch(`${apiBase}/transcript`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },

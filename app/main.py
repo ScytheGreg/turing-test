@@ -38,6 +38,8 @@ def get_controller(session_id: str) -> ConversationController:
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PARTICIPANT_DIR = BASE_DIR / "frontend" / "participant"
+DISPLAY_DIR = BASE_DIR / "frontend" / "display"
+HUMAN_DIR = BASE_DIR / "frontend" / "human"
 
 # Domyślny folder dla audio (będzie obsługiwać pliki tymczasowe)
 AUDIO_DIR = Path(tempfile.gettempdir())
@@ -52,6 +54,23 @@ app.mount(
     name="participant",
 )
 
+app.mount(
+    "/display",
+    StaticFiles(
+        directory=DISPLAY_DIR,
+        html=True,
+    ),
+    name="display",
+)
+
+app.mount(
+    "/human",
+    StaticFiles(
+        directory=HUMAN_DIR,
+        html=True,
+    ),
+    name="human",
+)
 
 @app.get("/")
 def index() -> FileResponse:
