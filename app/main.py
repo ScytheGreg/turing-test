@@ -7,6 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app.conversation.controller import ConversationController
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from app.realtime.manager import ConnectionManager
 
 
 class TranscriptUpdate(BaseModel):
@@ -14,6 +16,8 @@ class TranscriptUpdate(BaseModel):
 
 
 app = FastAPI(title="Turing Test")
+
+connection_manager = ConnectionManager()
 
 # Słownik przechowujący osobne kontrolery dla Alice i Boba
 controllers: dict[str, ConversationController] = {
@@ -141,3 +145,41 @@ def cancel(session_id: str) -> dict[str, str | None]:
         "transcript": ctrl.transcript,
         "answer": ctrl.answer,
     }
+
+@app.websocket("/ws/{session_id}")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    session_id: str,
+) -> None:
+    await connection_manager.connect(session_id, websocket)
+
+    try:
+        await websocket.send_json(
+            {
+                "type": "connected",
+                "session_id": session_id,
+            }
+        )
+
+        while True:
+            data = await websocket.receive_json()
+
+            text = str(data.get("text", "")).strip()
+
+            if not text:
+                continue
+
+            await connection_manager.send_to_session(
+                session_id,
+                {
+                    "type": "user_message",
+                    "session_id": session_id,
+                    "text": text,
+                },
+            )
+
+    except WebSocketDisconnect:
+        connection_manager.disconnect(
+            session_id,
+            websocket,
+        )

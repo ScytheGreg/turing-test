@@ -1,7 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+
     // 1. Odczytanie identyfikatora sesji z URL (domyślnie 'alice')
     const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = (urlParams.get("session") || "alice").toLowerCase();
+    const sessionId = (urlParams.get("session") || "bob").toLowerCase();
+
+    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const ws = new WebSocket(
+        `${wsProtocol}//${window.location.host}/ws/${sessionId}`
+    );
 
     // Wyświetlenie nazwy wybranej sesji w nagłówku
     const headerTitle = document.querySelector("h1");
@@ -97,10 +103,22 @@ document.addEventListener("DOMContentLoaded", () => {
             reRecordButton.disabled = true;
 
             const text = transcriptInput.value.trim();
+            if (!text) {
+                return;
+            }
+
+            if (ws.readyState !== WebSocket.OPEN) {
+                alert("Połączenie z serwerem nie jest gotowe.");
+                return;
+            }
+
+            ws.send(JSON.stringify({
+                text: text
+            }));
             await fetch(`${apiBase}/transcript`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: text })
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
             });
 
             updateUI("sending");
@@ -172,4 +190,29 @@ document.addEventListener("DOMContentLoaded", () => {
             answerText.textContent = answer;
         }
     }
+    ws.onopen = () => {
+        console.log("WebSocket connected:", sessionId);
+    };
+
+    ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+
+        console.log("WebSocket event:", message);
+
+        if (message.type === "connected") {
+            console.log("Connected to session:", message.session_id);
+        }
+
+        if (message.type === "user_message") {
+            console.log("User message:", message.text);
+        }
+    };
+
+    ws.onclose = () => {
+        console.log("WebSocket disconnected");
+    };
+
+    ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
 });
