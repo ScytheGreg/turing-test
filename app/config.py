@@ -39,11 +39,11 @@ WHISPER_LANGUAGE = "pl"
 # Piper
 # =========================
 
-PIPER_MODEL = (
-    BASE_DIR
-    / "models"
-    / "piper"
-    / "pl_PL-gosia-medium.onnx"
-)
+PIPER_MODELS = {
+    "host": BASE_DIR / "models" / "piper" / "pl_PL-bass-high.onnx",
+    "alice": BASE_DIR / "models" / "piper" / "pl_PL-gosia-medium.onnx",
+    "bob": BASE_DIR / "models" / "piper" / "pl_PL-darkman-medium.onnx",
+}
 
 PIPER_LENGTH_SCALE = 1.1
+

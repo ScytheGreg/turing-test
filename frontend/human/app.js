@@ -60,8 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         ws.send(JSON.stringify({
-            text: text
-        }));
+        type: "human_reply",
+        text: text
+    }));
 
         addMessage("Ty", text);
 

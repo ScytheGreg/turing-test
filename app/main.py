@@ -187,6 +187,18 @@ async def websocket_endpoint(
 
             if not text:
                 continue
+            message_type = data.get("type", "user_message")
+
+            if message_type == "human_reply":
+                await connection_manager.send_to_session(
+                    session_id,
+                    {
+                        "type": "human_reply",
+                        "session_id": session_id,
+                        "text": text,
+                    },
+                )
+                continue
 
             await connection_manager.send_to_session(
                 session_id,
@@ -194,6 +206,7 @@ async def websocket_endpoint(
                     "type": "user_message",
                     "session_id": session_id,
                     "text": text,
+                    "sender": "host",
                 },
             )
 

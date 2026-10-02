@@ -15,7 +15,10 @@ function connectSession(sessionId, messagesElementId) {
 
         console.log(`Display event [${sessionId}]:`, message);
 
-        if (message.type !== "user_message") {
+        if (
+            message.type !== "user_message" &&
+            message.type !== "human_reply"
+        ) {
             return;
         }
 
