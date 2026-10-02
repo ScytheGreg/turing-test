@@ -51,17 +51,23 @@ function connectSession(sessionId, messagesElementId) {
         if (
             message.type !== "user_message" &&
             message.type !== "human_reply" &&
-            message.type !== "assistant_message" &&
-            message.type !== "host_message"
+            message.type !== "assistant_message"
         ) {
             return;
         }
 
         const messageElement = document.createElement("div");
-        messageElement.className = "message";
+
+        if (message.type === "user_message") {
+            messageElement.className = "message host-message";
+        } else {
+            messageElement.className = `message response-message ${sessionId}-response`;
+        }
+
         messageElement.textContent = message.text;
 
         messagesElement.appendChild(messageElement);
+        messagesElement.scrollTop = messagesElement.scrollHeight;
     };
 
     ws.onclose = () => {

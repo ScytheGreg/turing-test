@@ -10,11 +10,14 @@ from app.conversation.controller import ConversationController
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from app.realtime.manager import ConnectionManager
 from app.tts.piper import PiperTTS
+import asyncio
 
 
 class TranscriptUpdate(BaseModel):
     text: str
 
+async def ai_sleep():
+    await asyncio.sleep(10)
 
 app = FastAPI(title="Turing Test")
 
@@ -36,6 +39,7 @@ def get_controller(session_id: str) -> ConversationController:
             detail=f"Nieznana sesja: {session_id}. Dostępne: alice, bob"
         )
     return controllers[sid]
+
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -120,7 +124,6 @@ def stop_recording(session_id: str) -> dict[str, str]:
         "transcript": transcript,
     }
 
-
 @app.post("/api/session/{session_id}/send")
 async def send_message(session_id: str) -> dict[str, str | None]:
     ctrl = get_controller(session_id)
@@ -133,24 +136,7 @@ async def send_message(session_id: str) -> dict[str, str | None]:
             detail="Brak transkrypcji do wysłania.",
         )
 
-    # Najpierw generujemy głos prowadzącego.
-    host_audio_path = ctrl.tts.synthesize(
-        transcript,
-        voice="host",
-    )
-
-    host_audio_url = f"/audio/{Path(host_audio_path).name}"
-
-    # Wysyłamy audio prowadzącego na display.
-    await connection_manager.send_to_session(
-        session_id,
-        {
-            "type": "audio_ready",
-            "session_id": session_id,
-            "audio_url": host_audio_url,
-            "voice": "host",
-        },
-    )
+    await ai_sleep()
 
     # Dopiero teraz pytamy LLM i generujemy odpowiedź Alice.
     try:
@@ -285,24 +271,24 @@ async def websocket_endpoint(
                 },
             )
 
-            if session_id.lower() == "bob":
-                audio_path = tts.synthesize(
-                    text,
-                    voice="host",
-                )
+            # Głos prowadzącego generujemy dla obu rozmów.
+            audio_path = tts.synthesize(
+                text,
+                voice="host",
+            )
 
-                filename = Path(audio_path).name
-                audio_url = f"/audio/{filename}"
+            filename = Path(audio_path).name
+            audio_url = f"/audio/{filename}"
 
-                await connection_manager.send_to_session(
-                    session_id,
-                    {
-                        "type": "audio_ready",
-                        "session_id": session_id,
-                        "audio_url": audio_url,
-                        "voice": "host",
-                    },
-                )
+            await connection_manager.send_to_session(
+                session_id,
+                {
+                    "type": "audio_ready",
+                    "session_id": session_id,
+                    "audio_url": audio_url,
+                    "voice": "host",
+                },
+            )
 
     except WebSocketDisconnect:
         connection_manager.disconnect(
