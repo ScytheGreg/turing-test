@@ -16,8 +16,8 @@ import asyncio
 class TranscriptUpdate(BaseModel):
     text: str
 
-async def ai_sleep():
-    await asyncio.sleep(10)
+async def ai_sleep(ansLen: int):
+    await asyncio.sleep(max(ansLen / 8, 4))
 
 app = FastAPI(title="Turing Test")
 
@@ -136,7 +136,7 @@ async def send_message(session_id: str) -> dict[str, str | None]:
             detail="Brak transkrypcji do wysłania.",
         )
 
-    await ai_sleep()
+    await asyncio.sleep(2) # Czas na załadowanie głosu i przeczytanie przez lektora
 
     # Dopiero teraz pytamy LLM i generujemy odpowiedź Alice.
     try:
@@ -145,6 +145,8 @@ async def send_message(session_id: str) -> dict[str, str | None]:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     audio_url = None
+
+    await ai_sleep(len(answer))
 
     if ctrl.audio_path is not None:
         filename = Path(ctrl.audio_path).name
