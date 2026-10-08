@@ -3,34 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uczestnik</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Rozmowa — Uczestnik</title>
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
     <main class="human-panel">
-        <h1>Uczestnik</h1>
+        <header class="human-header">
+            <div>
+                <p class="eyebrow">TURING TEST</p>
+                <h1 id="sessionTitle">Rozmowa</h1>
+                <p class="subtitle">Odpowiadasz na wiadomości rozmówcy</p>
+            </div>
+            <div id="connectionStatus" class="status">Łączenie...</div>
+        </header>
 
-        <div id="connectionStatus" class="status">
-            Łączenie...
-        </div>
-
-        <section id="conversation" class="conversation"></section>
+        <section class="conversation-shell" aria-label="Historia rozmowy">
+            <div class="conversation-heading">
+                <h2>Rozmowa</h2>
+                <span>Twoje odpowiedzi pojawią się po prawej</span>
+            </div>
+            <section id="conversation" class="conversation">
+                <div id="emptyState" class="empty-state">
+                    Gdy rozmówca napisze wiadomość, pojawi się tutaj.
+                </div>
+            </section>
+        </section>
 
         <form id="messageForm" class="message-form">
-            <textarea
-                id="messageInput"
-                placeholder="Wpisz odpowiedź..."
-                rows="4"
-                disabled
-            ></textarea>
-
-            <button id="sendButton" type="submit" disabled>
-                Wyślij
-            </button>
+            <div class="composer">
+                <textarea
+                    id="messageInput"
+                    placeholder="Napisz odpowiedź..."
+                    rows="2"
+                    disabled
+                ></textarea>
+                <button id="sendButton" type="submit" disabled>
+                    <span>Wyślij</span>
+                    <span aria-hidden="true">↗</span>
+                </button>
+            </div>
+            <p class="composer-hint">Enter wysyła wiadomość · Shift + Enter dodaje nową linię</p>
         </form>
     </main>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>

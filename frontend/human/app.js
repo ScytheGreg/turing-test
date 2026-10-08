@@ -9,9 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const connectionStatus = document.getElementById("connectionStatus");
     const conversation = document.getElementById("conversation");
+    const emptyState = document.getElementById("emptyState");
     const messageForm = document.getElementById("messageForm");
     const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
+    const sessionTitle = document.getElementById("sessionTitle");
+
+    sessionTitle.textContent = `Rozmowa: ${sessionId.toUpperCase()}`;
 
     ws.onopen = () => {
         console.log("Human WebSocket connected:", sessionId);
@@ -70,14 +74,26 @@ document.addEventListener("DOMContentLoaded", () => {
         messageInput.focus();
     });
 
+    messageInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            messageForm.requestSubmit();
+        }
+    });
+
     function addMessage(sender, text) {
-        const element = document.createElement("div");
-        element.className = "message";
+        emptyState.hidden = true;
+
+        const element = document.createElement("article");
+        element.className = sender === "Ty"
+            ? "message message-outgoing"
+            : "message message-incoming";
 
         const senderElement = document.createElement("strong");
         senderElement.textContent = sender;
 
         const textElement = document.createElement("div");
+        textElement.className = "message-text";
         textElement.textContent = text;
 
         element.appendChild(senderElement);
