@@ -288,8 +288,18 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000</pre>
 
     <p>
         Ekran pokazuje dwie rozmowy jednocześnie.
-        Strony mogą być dowolnie przypisane do Alice i Boba.
+        Strony można przypisać do Alice i Boba, a każdej stronie nadać nazwę
+        wyświetlaną publiczności.
     </p>
+
+    <p>
+        Klikalna lista gotowych konfiguracji znajduje się tutaj:
+    </p>
+
+    <a class="link" href="https://turing-test.pl/display/links.html">
+        <span class="label">Linki testowe:</span>
+        <span class="url">https://turing-test.pl/display/links.html</span>
+    </a>
 </div>
 
 
@@ -297,25 +307,33 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000</pre>
 
 <div class="card">
     <p>
-        Przykład:
+        Przykład — Alice jako Anna po lewej, Bob jako Michał po prawej:
     </p>
 
-    <pre>https://turing-test.pl/display/?left=bob&amp;leftName=Kasia&amp;right=alice&amp;rightName=Tomek</pre>
+    <pre>https://turing-test.pl/display/?left=alice&amp;leftName=Anna&amp;right=bob&amp;rightName=Micha%C5%82</pre>
 
     <p>
         W tym przypadku:
     </p>
 
     <ul>
-        <li>lewa strona = Bob, wyświetlana jako „Kasia”,</li>
-        <li>prawa strona = Alice, wyświetlana jako „Tomek”.</li>
+        <li>lewa strona = Alice, wyświetlana jako „Anna”,</li>
+        <li>prawa strona = Bob, wyświetlany jako „Michał”.</li>
     </ul>
 
     <p>
-        Można oczywiście zamienić strony:
+        Można też zamienić strony i użyć innego zestawu imion:
     </p>
 
-    <pre>https://turing-test.pl/display/?left=alice&amp;leftName=Kasia&amp;right=bob&amp;rightName=Tomek</pre>
+    <pre>https://turing-test.pl/display/?left=bob&amp;leftName=Piotr&amp;right=alice&amp;rightName=Zosia</pre>
+
+    <p>
+        Parametry <code>left</code> i <code>right</code> wybierają sesję
+        (<code>alice</code> albo <code>bob</code>), a <code>leftName</code>
+        i <code>rightName</code> określają podpisy paneli. Alice powinna mieć
+        imię żeńskie, a Bob męskie. Spacje i polskie znaki w adresie są
+        kodowane automatycznie, np. <code>Micha%C5%82</code> oznacza „Michał”.
+    </p>
 </div>
 
 
@@ -430,4 +448,3 @@ uv run python scripts/check_setup.py</pre>
 </div>
 </body>
 </html>
-
