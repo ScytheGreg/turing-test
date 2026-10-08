@@ -1,7 +1,7 @@
 import os
 import tempfile
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -20,6 +20,16 @@ async def ai_sleep(ansLen: int):
     await asyncio.sleep(max(ansLen / 8, 4))
 
 app = FastAPI(title="Turing Test")
+
+
+@app.middleware("http")
+async def disable_frontend_cache(request: Request, call_next):
+    response = await call_next(request)
+
+    if request.url.path.startswith(("/participant", "/display")):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+
+    return response
 
 connection_manager = ConnectionManager()
 tts = PiperTTS()
