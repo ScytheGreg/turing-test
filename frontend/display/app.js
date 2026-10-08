@@ -7,9 +7,16 @@ const displayConfig = window.DisplayConfig
         leftName: "ALICE",
         rightName: "BOB",
     };
+const getMessageLabel = window.DisplayConfig
+    ? window.DisplayConfig.getMessageLabel
+    : (messageType) => messageType === "user_message"
+        ? "Prowadzący"
+        : "Odpowiedź";
 
 document.getElementById("leftTitle").textContent = displayConfig.leftName;
 document.getElementById("rightTitle").textContent = displayConfig.rightName;
+document.getElementById("leftSession").textContent = displayConfig.left.toUpperCase();
+document.getElementById("rightSession").textContent = displayConfig.right.toUpperCase();
 
 document.getElementById("enableAudio").addEventListener("click", () => {
     audioEnabled = true;
@@ -68,14 +75,24 @@ function connectSession(sessionId, messagesElementId) {
         }
 
         const messageElement = document.createElement("div");
+        const labelElement = document.createElement("div");
+        const textElement = document.createElement("div");
+        const isHostMessage = message.type === "user_message";
 
-        if (message.type === "user_message") {
+        if (isHostMessage) {
             messageElement.className = "message host-message";
         } else {
             messageElement.className = `message response-message ${sessionId}-response`;
         }
 
-        messageElement.textContent = message.text;
+        labelElement.className = "message-label";
+        labelElement.textContent = getMessageLabel(
+            message.type,
+            sessionId,
+        );
+        textElement.className = "message-text";
+        textElement.textContent = message.text;
+        messageElement.append(labelElement, textElement);
 
         messagesElement.appendChild(messageElement);
         messagesElement.scrollTop = messagesElement.scrollHeight;

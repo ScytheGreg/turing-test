@@ -36,5 +36,13 @@
         };
     }
 
-    return { getDisplayConfig };
+    function getMessageLabel(messageType, sessionId) {
+        if (messageType === "user_message") {
+            return "Prowadzący";
+        }
+
+        return `Odpowiedź · ${(sessionId || "").toUpperCase()}`;
+    }
+
+    return { getDisplayConfig, getMessageLabel };
 });

@@ -1,7 +1,10 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { getDisplayConfig } = require("../frontend/display/config.js");
+const {
+    getDisplayConfig,
+    getMessageLabel,
+} = require("../frontend/display/config.js");
 
 
 test("uses Alice and Bob by default", () => {
@@ -47,4 +50,16 @@ test("ignores unknown sessions and prevents duplicate panels", () => {
         leftName: "BOB",
         rightName: "ALICE",
     });
+});
+
+test("labels the message sender clearly", () => {
+    assert.equal(getMessageLabel("user_message", "alice"), "Prowadzący");
+    assert.equal(
+        getMessageLabel("assistant_message", "alice"),
+        "Odpowiedź · ALICE"
+    );
+    assert.equal(
+        getMessageLabel("human_reply", "bob"),
+        "Odpowiedź · BOB"
+    );
 });
