@@ -101,5 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         conversation.appendChild(element);
         conversation.scrollTop = conversation.scrollHeight;
+
+        requestAnimationFrame(() => {
+            window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: "smooth",
+            });
+        });
     }
 });

@@ -251,20 +251,19 @@ button:disabled {
 
 @media (max-width: 620px) {
     body {
-        height: 100dvh;
-        overflow: hidden;
+        min-height: 100svh;
+        overflow: auto;
         padding: 0;
     }
 
     .human-panel {
-        display: flex;
-        flex-direction: column;
-        height: 100dvh;
-        min-height: 100dvh;
+        display: block;
+        min-height: 100svh;
+        height: auto;
         padding: 20px 14px;
         border: 0;
         border-radius: 0;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .human-header {
@@ -273,10 +272,9 @@ button:disabled {
     }
 
     .conversation-shell {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
+        display: block;
         min-height: 0;
+        height: auto;
         margin-top: 14px;
         padding: 14px;
     }
@@ -290,10 +288,10 @@ button:disabled {
     }
 
     .conversation {
-        flex: 1;
-        min-height: 0;
+        min-height: 260px;
         max-height: none;
-        overscroll-behavior: contain;
+        overflow: visible;
+        padding-bottom: 18px;
     }
 
     .message-form {
@@ -303,6 +301,7 @@ button:disabled {
         margin-top: 10px;
         padding: 10px 0 max(4px, env(safe-area-inset-bottom));
         background: #07130d;
+        z-index: 2;
     }
 
     .composer {
