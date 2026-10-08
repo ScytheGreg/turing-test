@@ -1,5 +1,12 @@
 let audioEnabled = false;
-const displayConfig = DisplayConfig.getDisplayConfig(window.location.search);
+const displayConfig = window.DisplayConfig
+    ? window.DisplayConfig.getDisplayConfig(window.location.search)
+    : {
+        left: "alice",
+        right: "bob",
+        leftName: "ALICE",
+        rightName: "BOB",
+    };
 
 document.getElementById("leftTitle").textContent = displayConfig.leftName;
 document.getElementById("rightTitle").textContent = displayConfig.rightName;
