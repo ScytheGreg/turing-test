@@ -10,19 +10,15 @@ const displayConfig = window.DisplayConfig
 const getMessageLabel = window.DisplayConfig
     ? window.DisplayConfig.getMessageLabel
     : (messageType) => messageType === "user_message"
-        ? "Pytanie · prowadzący"
+        ? "Pytanie"
         : "Odpowiedź";
-
 document.getElementById("leftTitle").textContent = displayConfig.leftName;
 document.getElementById("rightTitle").textContent = displayConfig.rightName;
-document.getElementById("leftSession").textContent = displayConfig.left.toUpperCase();
-document.getElementById("rightSession").textContent = displayConfig.right.toUpperCase();
 
-document.getElementById("enableAudio").addEventListener("click", () => {
+const enableAudioButton = document.getElementById("enableAudio");
+enableAudioButton.addEventListener("click", () => {
     audioEnabled = true;
-
-    document.getElementById("enableAudio").textContent = "🔊 Dźwięk włączony";
-    document.getElementById("enableAudio").disabled = true;
+    enableAudioButton.hidden = true;
 });
 
 
@@ -76,7 +72,6 @@ function connectSession(sessionId, messagesElementId) {
 
         const messageElement = document.createElement("div");
         const labelElement = document.createElement("div");
-        const textElement = document.createElement("div");
         const isHostMessage = message.type === "user_message";
 
         if (isHostMessage) {
@@ -86,13 +81,11 @@ function connectSession(sessionId, messagesElementId) {
         }
 
         labelElement.className = "message-label";
-        labelElement.textContent = getMessageLabel(
-            message.type,
-            sessionId,
+        labelElement.textContent = getMessageLabel(message.type);
+        messageElement.append(
+            labelElement,
+            document.createTextNode(message.text),
         );
-        textElement.className = "message-text";
-        textElement.textContent = message.text;
-        messageElement.append(labelElement, textElement);
 
         messagesElement.appendChild(messageElement);
         messagesElement.scrollTop = messagesElement.scrollHeight;

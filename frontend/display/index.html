@@ -4,19 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Turinga — Display</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
     <main class="display">
-        <button id="enableAudio">🔊 Włącz dźwięk</button>
+        <button id="enableAudio" class="audio-button" type="button">
+            <svg class="audio-button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 10v4h4l5 4V6l-5 4H4Z"></path>
+                <path d="M16 9.5a4 4 0 0 1 0 5"></path>
+                <path d="M18.5 7a7.5 7.5 0 0 1 0 10"></path>
+            </svg>
+            <span>Włącz dźwięk</span>
+        </button>
         <section class="panel" id="leftPanel">
             <header class="panel-header">
                 <div class="question-guide" aria-label="Pytania prowadzącego">
                     <span class="question-guide-label">PYTANIA</span>
                     <span class="question-guide-arrow" aria-hidden="true">↓</span>
                 </div>
-                <div class="panel-kicker">Sesja <span id="leftSession">ALICE</span></div>
                 <h1 id="leftTitle">ALICE</h1>
                 <div class="panel-caption">Rozmowa w toku</div>
             </header>
@@ -29,7 +35,6 @@
                     <span class="question-guide-label">PYTANIA</span>
                     <span class="question-guide-arrow" aria-hidden="true">↓</span>
                 </div>
-                <div class="panel-kicker">Sesja <span id="rightSession">BOB</span></div>
                 <h1 id="rightTitle">BOB</h1>
                 <div class="panel-caption">Rozmowa w toku</div>
             </header>
@@ -37,7 +42,7 @@
         </section>
     </main>
 
-    <script src="config.js?v=4"></script>
-    <script src="app.js?v=4"></script>
+    <script src="config.js?v=7"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>

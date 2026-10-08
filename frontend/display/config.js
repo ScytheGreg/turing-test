@@ -36,12 +36,8 @@
         };
     }
 
-    function getMessageLabel(messageType, sessionId) {
-        if (messageType === "user_message") {
-            return "Pytanie · prowadzący";
-        }
-
-        return `Odpowiedź · ${(sessionId || "").toUpperCase()}`;
+    function getMessageLabel(messageType) {
+        return messageType === "user_message" ? "Pytanie" : "Odpowiedź";
     }
 
     return { getDisplayConfig, getMessageLabel };

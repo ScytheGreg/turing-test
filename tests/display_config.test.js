@@ -52,17 +52,8 @@ test("ignores unknown sessions and prevents duplicate panels", () => {
     });
 });
 
-test("labels the message sender clearly", () => {
-    assert.equal(
-        getMessageLabel("user_message", "alice"),
-        "Pytanie · prowadzący"
-    );
-    assert.equal(
-        getMessageLabel("assistant_message", "alice"),
-        "Odpowiedź · ALICE"
-    );
-    assert.equal(
-        getMessageLabel("human_reply", "bob"),
-        "Odpowiedź · BOB"
-    );
+test("uses short labels for questions and answers", () => {
+    assert.equal(getMessageLabel("user_message"), "Pytanie");
+    assert.equal(getMessageLabel("assistant_message"), "Odpowiedź");
+    assert.equal(getMessageLabel("human_reply"), "Odpowiedź");
 });
