@@ -10,9 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     // Wyświetlenie nazwy wybranej sesji w nagłówku
-    const headerTitle = document.querySelector("h1");
+    const headerTitle = document.getElementById("sessionTitle");
     if (headerTitle) {
-        headerTitle.textContent = `Test Turinga — Rozmowa: ${sessionId.toUpperCase()}`;
+        headerTitle.textContent = `Rozmowa: ${sessionId.toUpperCase()}`;
     }
 
     // Adres bazowy dla wybranych endpointów sesji
@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const transcriptInput = document.getElementById("transcriptInput");
     const reRecordButton = document.getElementById("reRecordButton");
     const sendButton = document.getElementById("sendButton");
-    const responseSection = document.getElementById("responseSection");
-    const answerText = document.getElementById("answerText");
+    const messagesElement = document.getElementById("messages");
+    const emptyState = document.getElementById("emptyState");
 
     // Rejestracja zdarzeń
     recordButton.addEventListener("click", startRecording);
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (res.ok) {
-                updateUI("idle", null, data.answer);
+                updateUI("idle");
 
                 if (data.audio_path) {
                     const audio = new Audio(data.audio_path);
@@ -190,9 +190,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (answer) {
-            responseSection.hidden = false;
-            answerText.textContent = answer;
+            appendMessage("incoming", answer);
         }
+    }
+
+    function appendMessage(direction, text) {
+        if (!text) {
+            return;
+        }
+
+        emptyState.hidden = true;
+
+        const messageElement = document.createElement("article");
+        const labelElement = document.createElement("div");
+        const textElement = document.createElement("div");
+
+        messageElement.className = `message message-${direction}`;
+        labelElement.className = "message-label";
+        labelElement.textContent = direction === "outgoing" ? "Ty" : "Rozmówca";
+        textElement.className = "message-text";
+        textElement.textContent = text;
+
+        messageElement.append(labelElement, textElement);
+        messagesElement.appendChild(messageElement);
+        messagesElement.scrollTop = messagesElement.scrollHeight;
     }
     ws.onopen = () => {
         console.log("WebSocket connected:", sessionId);
@@ -208,7 +229,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (message.type === "user_message") {
-            console.log("User message:", message.text);
+            appendMessage("outgoing", message.text);
+        }
+
+        if (message.type === "assistant_message" || message.type === "human_reply") {
+            appendMessage("incoming", message.text);
         }
     };
 

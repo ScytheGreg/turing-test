@@ -4,16 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turing Test — Uczestnik</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Test Turinga</h1>
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">TURING TEST</p>
+                <h1 id="sessionTitle">Rozmowa</h1>
+            </div>
             <div id="statusBadge" class="badge idle">Stan: Gotowy</div>
         </header>
 
         <main>
+            <section class="conversation-panel" aria-label="Historia rozmowy">
+                <div class="conversation-heading">
+                    <h2>Rozmowa</h2>
+                    <span class="conversation-hint">Twoje wiadomości są po prawej</span>
+                </div>
+                <div id="messages" class="messages" aria-live="polite">
+                    <div id="emptyState" class="empty-state">
+                        Rozpocznij rozmowę, nagrywając pierwszą wiadomość.
+                    </div>
+                </div>
+            </section>
+
             <!-- Sekcja kontroli nagrywania -->
             <section class="controls-section">
                 <button id="recordButton" class="btn btn-record">
@@ -39,14 +54,9 @@
                 </div>
             </section>
 
-            <!-- Sekcja odpowiedzi AI -->
-            <section id="responseSection" class="response-section" hidden>
-                <h3>Odpowiedź:</h3>
-                <div id="answerText" class="answer-box"></div>
-            </section>
         </main>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
