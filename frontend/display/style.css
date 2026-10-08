@@ -45,9 +45,38 @@ body {
 }
 
 .panel-header {
+    position: relative;
     flex: 0 0 auto;
     padding: 8px 8px 26px;
     text-align: center;
+}
+
+.question-guide {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #f7c873;
+}
+
+.question-guide-label {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+}
+
+.question-guide-arrow {
+    display: grid;
+    width: 27px;
+    height: 27px;
+    place-items: center;
+    border: 1px solid rgba(247, 200, 115, 0.65);
+    border-radius: 50%;
+    background: rgba(247, 200, 115, 0.13);
+    font-size: 20px;
+    line-height: 1;
 }
 
 .panel-kicker {
@@ -95,25 +124,26 @@ body {
 }
 
 .message {
+    position: relative;
     width: fit-content;
     max-width: min(88%, 760px);
     margin-bottom: 20px;
-    padding: 15px 19px 17px;
+    padding: 16px 21px 18px;
 
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    border-radius: 18px 18px 18px 6px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 22px 22px 22px 7px;
 
     font-size: clamp(21px, 2.1vw, 31px);
     line-height: 1.35;
 
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 
     animation: messageAppear 0.2s ease-out;
 }
 
 .message-label {
     margin-bottom: 7px;
-    color: #cbd5e1;
+    color: #dbeafe;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -129,9 +159,14 @@ body {
     margin-left: auto;
     margin-right: 0;
 
-    background: linear-gradient(145deg, #263b4b, #1d2c39);
-    border-color: #47657a;
-    border-radius: 18px 18px 6px 18px;
+    background: linear-gradient(145deg, #3e5264, #263846);
+    border: 2px solid #f0b84f;
+    border-radius: 22px 22px 7px 22px;
+    box-shadow: 0 12px 30px rgba(10, 14, 18, 0.3), 0 0 0 3px rgba(240, 184, 79, 0.08);
+}
+
+.host-message .message-label {
+    color: #f7c873;
 }
 
 /* Odpowiedź — zawsze lewa strona */
@@ -150,6 +185,10 @@ body {
 .bob-response {
     background: linear-gradient(145deg, #23543f, #19372e);
     border-color: #438566;
+}
+
+.response-message .message-label {
+    color: #d1fae5;
 }
 
 @keyframes messageAppear {
@@ -203,6 +242,10 @@ body {
 @media (max-width: 1000px) {
     .panel {
         padding: 24px 22px;
+    }
+
+    .question-guide-label {
+        display: none;
     }
 
     .panel h1 {

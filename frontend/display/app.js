@@ -10,7 +10,7 @@ const displayConfig = window.DisplayConfig
 const getMessageLabel = window.DisplayConfig
     ? window.DisplayConfig.getMessageLabel
     : (messageType) => messageType === "user_message"
-        ? "Prowadzący"
+        ? "Pytanie · prowadzący"
         : "Odpowiedź";
 
 document.getElementById("leftTitle").textContent = displayConfig.leftName;

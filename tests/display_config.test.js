@@ -53,7 +53,10 @@ test("ignores unknown sessions and prevents duplicate panels", () => {
 });
 
 test("labels the message sender clearly", () => {
-    assert.equal(getMessageLabel("user_message", "alice"), "Prowadzący");
+    assert.equal(
+        getMessageLabel("user_message", "alice"),
+        "Pytanie · prowadzący"
+    );
     assert.equal(
         getMessageLabel("assistant_message", "alice"),
         "Odpowiedź · ALICE"

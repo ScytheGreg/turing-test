@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Turinga — Display</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -12,6 +12,10 @@
         <button id="enableAudio">🔊 Włącz dźwięk</button>
         <section class="panel" id="leftPanel">
             <header class="panel-header">
+                <div class="question-guide" aria-label="Pytania prowadzącego">
+                    <span class="question-guide-label">PYTANIA</span>
+                    <span class="question-guide-arrow" aria-hidden="true">↓</span>
+                </div>
                 <div class="panel-kicker">Sesja <span id="leftSession">ALICE</span></div>
                 <h1 id="leftTitle">ALICE</h1>
                 <div class="panel-caption">Rozmowa w toku</div>
@@ -21,6 +25,10 @@
 
         <section class="panel" id="rightPanel">
             <header class="panel-header">
+                <div class="question-guide" aria-label="Pytania prowadzącego">
+                    <span class="question-guide-label">PYTANIA</span>
+                    <span class="question-guide-arrow" aria-hidden="true">↓</span>
+                </div>
                 <div class="panel-kicker">Sesja <span id="rightSession">BOB</span></div>
                 <h1 id="rightTitle">BOB</h1>
                 <div class="panel-caption">Rozmowa w toku</div>
@@ -29,7 +37,7 @@
         </section>
     </main>
 
-    <script src="config.js?v=3"></script>
-    <script src="app.js?v=3"></script>
+    <script src="config.js?v=4"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>

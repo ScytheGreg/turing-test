@@ -38,7 +38,7 @@
 
     function getMessageLabel(messageType, sessionId) {
         if (messageType === "user_message") {
-            return "Prowadzący";
+            return "Pytanie · prowadzący";
         }
 
         return `Odpowiedź · ${(sessionId || "").toUpperCase()}`;
