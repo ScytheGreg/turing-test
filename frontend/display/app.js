@@ -1,4 +1,8 @@
 let audioEnabled = false;
+const displayConfig = DisplayConfig.getDisplayConfig(window.location.search);
+
+document.getElementById("leftTitle").textContent = displayConfig.leftName;
+document.getElementById("rightTitle").textContent = displayConfig.rightName;
 
 document.getElementById("enableAudio").addEventListener("click", () => {
     audioEnabled = true;
@@ -80,5 +84,5 @@ function connectSession(sessionId, messagesElementId) {
 }
 
 
-connectSession("alice", "aliceMessages");
-connectSession("bob", "bobMessages");
+connectSession(displayConfig.left, "leftMessages");
+connectSession(displayConfig.right, "rightMessages");

@@ -55,8 +55,8 @@ body {
 }
 
 /* Obszar rozmowy */
-#aliceMessages,
-#bobMessages {
+#leftMessages,
+#rightMessages {
     flex: 1;
 
     overflow-y: auto;
@@ -66,8 +66,8 @@ body {
     scrollbar-width: none;
 }
 
-#aliceMessages::-webkit-scrollbar,
-#bobMessages::-webkit-scrollbar {
+#leftMessages::-webkit-scrollbar,
+#rightMessages::-webkit-scrollbar {
     display: none;
 }
 
@@ -175,4 +175,3 @@ body {
         font-size: 24px;
     }
 }
-
