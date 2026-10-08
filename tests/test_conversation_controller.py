@@ -155,6 +155,22 @@ def test_send_is_not_possible_before_review():
         pass
 
 
+def test_send_manual_text_without_recording():
+    conversation = FakeConversation()
+    tts = FakeTTS()
+    controller = ConversationController(
+        conversation=conversation,
+        tts=tts,
+    )
+
+    controller.edit_transcript("Wiadomość wpisana ręcznie.")
+    answer = controller.send()
+
+    assert answer == "Odpowiedź AI."
+    assert conversation.sent_messages == ["Wiadomość wpisana ręcznie."]
+    assert controller.state == ConversationState.IDLE
+
+
 class FakeTTS:
     def __init__(self) -> None:
         self.synthesized_texts = []

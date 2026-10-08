@@ -70,7 +70,10 @@ class ConversationController:
         return transcript
 
     def edit_transcript(self, text: str) -> None:
-        if self.state != ConversationState.REVIEW:
+        if self.state not in (
+                ConversationState.IDLE,
+                ConversationState.REVIEW,
+        ):
             raise RuntimeError(
                 f"Nie można edytować transkrypcji w stanie: {self.state.value}"
             )
@@ -83,7 +86,10 @@ class ConversationController:
         self.transcript = text
 
     def send(self) -> str:
-        if self.state != ConversationState.REVIEW:
+        if self.state not in (
+                ConversationState.IDLE,
+                ConversationState.REVIEW,
+        ):
             raise RuntimeError(
                 f"Nie można wysłać wiadomości w stanie: {self.state.value}"
             )
@@ -114,4 +120,3 @@ class ConversationController:
         self.answer = None
         self.audio_path = None
         self.state = ConversationState.IDLE
-
