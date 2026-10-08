@@ -307,18 +307,18 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000</pre>
 
 <div class="card">
     <p>
-        Przykład — Alice jako Anna po lewej, Bob jako Michał po prawej:
+        Przykład — Alice jako Basia po lewej, Bob jako Grzesiek po prawej:
     </p>
 
-    <pre>https://turing-test.pl/display/?left=alice&amp;leftName=Anna&amp;right=bob&amp;rightName=Micha%C5%82</pre>
+    <pre>https://turing-test.pl/display/?left=alice&amp;leftName=Basia&amp;right=bob&amp;rightName=Grzesiek</pre>
 
     <p>
         W tym przypadku:
     </p>
 
     <ul>
-        <li>lewa strona = Alice, wyświetlana jako „Anna”,</li>
-        <li>prawa strona = Bob, wyświetlany jako „Michał”.</li>
+        <li>lewa strona = Alice, wyświetlana jako „Basia”,</li>
+        <li>prawa strona = Bob, wyświetlany jako „Grzesiek”.</li>
     </ul>
 
     <p>
@@ -332,7 +332,7 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000</pre>
         (<code>alice</code> albo <code>bob</code>), a <code>leftName</code>
         i <code>rightName</code> określają podpisy paneli. Alice powinna mieć
         imię żeńskie, a Bob męskie. Spacje i polskie znaki w adresie są
-        kodowane automatycznie, np. <code>Micha%C5%82</code> oznacza „Michał”.
+        kodowane automatycznie, jeśli nazwa zawiera polskie znaki.
     </p>
 </div>
 
