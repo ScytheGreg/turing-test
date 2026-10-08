@@ -28,20 +28,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendButton = document.getElementById("sendButton");
     const messagesElement = document.getElementById("messages");
     const emptyState = document.getElementById("emptyState");
+    let stateRequestToken = 0;
+
+    document.body.classList.add(
+        sessionId === "alice" ? "session-alice" : "session-bob",
+    );
 
     // Rejestracja zdarzeń
     recordButton.addEventListener("click", startRecording);
     stopButton.addEventListener("click", stopRecording);
     reRecordButton.addEventListener("click", cancelRecording);
     sendButton.addEventListener("click", sendMessage);
+    transcriptInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+
+            if (!sendButton.disabled) {
+                sendButton.click();
+            }
+        }
+    });
 
     // Pobranie stanu przy starcie
     fetchState();
 
     async function fetchState() {
+        const requestToken = stateRequestToken;
+
         try {
             const res = await fetch(`${apiBase}/state`);
             const data = await res.json();
+
+            if (requestToken !== stateRequestToken) {
+                return;
+            }
+
             updateUI(data.state, data.transcript, data.answer);
         } catch (err) {
             console.error("Błąd pobierania stanu:", err);
@@ -49,24 +70,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function startRecording() {
+        stateRequestToken += 1;
+
         try {
             recordButton.disabled = true;
             const res = await fetch(`${apiBase}/record/start`, { method: "POST" });
+            const data = await res.json();
+
             if (res.ok) {
-                updateUI("recording");
+                updateUI(data.state || "recording");
             } else {
-                alert("Nie udało się rozpocząć nagrywania.");
+                alert(data.detail || "Nie udało się rozpocząć nagrywania.");
                 fetchState();
             }
         } catch (err) {
             console.error("Błąd startu nagrywania:", err);
             fetchState();
-        } finally {
-            recordButton.disabled = false;
         }
     }
 
     async function stopRecording() {
+        stateRequestToken += 1;
+
         try {
             stopButton.disabled = true;
             updateUI("transcribing");
@@ -75,25 +100,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (res.ok) {
-                updateUI("review", data.transcript);
+                updateUI(data.state || "review", data.transcript);
             } else {
-                alert("Błąd rozpoznawania mowy.");
+                alert(data.detail || "Błąd rozpoznawania mowy.");
                 fetchState();
             }
         } catch (err) {
             console.error("Błąd zatrzymywania nagrywania:", err);
             fetchState();
-        } finally {
-            stopButton.disabled = false;
         }
     }
 
     async function cancelRecording() {
+        stateRequestToken += 1;
+
         try {
-            await fetch(`${apiBase}/cancel`, { method: "POST" });
-            updateUI("idle");
+            const res = await fetch(`${apiBase}/cancel`, { method: "POST" });
+            const data = await res.json();
+            updateUI(res.ok ? data.state || "idle" : "idle");
         } catch (err) {
             console.error("Błąd anulowania:", err);
+            updateUI("idle");
         }
     }
 
@@ -154,6 +181,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const normalizedState = (state || "idle").toLowerCase();
 
         statusBadge.className = `badge ${normalizedState}`;
+        recordButton.disabled = normalizedState !== "idle";
+        stopButton.disabled = normalizedState !== "recording";
 
         const stateLabels = {
             idle: "Stan: Gotowy",

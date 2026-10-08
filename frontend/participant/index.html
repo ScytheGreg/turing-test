@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turing Test — Uczestnik</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <div class="container">
@@ -31,11 +31,13 @@
 
             <!-- Sekcja kontroli nagrywania -->
             <section class="controls-section">
-                <button id="recordButton" class="btn btn-record">
-                    🔴 Nagraj
+                <button id="recordButton" class="btn record-button btn-record" type="button">
+                    <span class="btn-icon" aria-hidden="true">●</span>
+                    <span>Nagraj</span>
                 </button>
-                <button id="stopButton" class="btn btn-stop" hidden>
-                    ⏹ Zatrzymaj
+                <button id="stopButton" class="btn record-button btn-stop" type="button" hidden>
+                    <span class="btn-icon" aria-hidden="true">■</span>
+                    <span>Zatrzymaj</span>
                 </button>
             </section>
 
@@ -43,13 +45,16 @@
             <section id="reviewSection" class="review-section" hidden>
                 <label for="transcriptInput">Rozpoznany tekst (możesz edytować):</label>
                 <textarea id="transcriptInput" rows="4"></textarea>
+                <p class="input-hint">Enter wysyła wiadomość · Shift + Enter dodaje nową linię</p>
 
                 <div class="action-buttons">
-                    <button id="reRecordButton" class="btn btn-secondary">
-                        🔄 Nagraj ponownie
+                    <button id="reRecordButton" class="btn btn-secondary" type="button">
+                        <span class="btn-icon" aria-hidden="true">↻</span>
+                        <span>Nagraj ponownie</span>
                     </button>
-                    <button id="sendButton" class="btn btn-primary">
-                        🚀 Wyślij
+                    <button id="sendButton" class="btn btn-primary" type="button">
+                        <span class="btn-icon" aria-hidden="true">↗</span>
+                        <span>Wyślij</span>
                     </button>
                 </div>
             </section>
@@ -57,6 +62,6 @@
         </main>
     </div>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=5"></script>
 </body>
 </html>

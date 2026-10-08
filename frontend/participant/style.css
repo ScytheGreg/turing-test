@@ -166,6 +166,94 @@ main {
     color: #bfdbfe;
 }
 
+.session-alice {
+    --theme: #ec4899;
+    --theme-strong: #db2777;
+    --theme-soft: rgba(236, 72, 153, 0.18);
+    background:
+        radial-gradient(circle at 10% 0%, rgba(236, 72, 153, 0.25), transparent 34%),
+        radial-gradient(circle at 100% 100%, rgba(244, 114, 182, 0.14), transparent 38%),
+        #190d18;
+}
+
+.session-bob {
+    --theme: #d97706;
+    --theme-strong: #b45309;
+    --theme-soft: rgba(217, 119, 6, 0.2);
+    background:
+        radial-gradient(circle at 10% 0%, rgba(217, 119, 6, 0.25), transparent 34%),
+        radial-gradient(circle at 100% 100%, rgba(180, 83, 9, 0.18), transparent 38%),
+        #1b120b;
+}
+
+.session-alice .eyebrow,
+.session-alice .conversation-heading h2 {
+    color: #f9a8d4;
+}
+
+.session-bob .eyebrow,
+.session-bob .conversation-heading h2 {
+    color: #fbbf24;
+}
+
+.session-alice .container {
+    border-color: rgba(244, 114, 182, 0.28);
+    background: rgba(45, 16, 39, 0.84);
+}
+
+.session-bob .container {
+    border-color: rgba(251, 191, 36, 0.24);
+    background: rgba(48, 29, 15, 0.86);
+}
+
+.session-alice .conversation-panel,
+.session-bob .conversation-panel {
+    border-color: color-mix(in srgb, var(--theme) 24%, transparent);
+    background: rgba(2, 6, 23, 0.26);
+}
+
+.session-alice .message-incoming {
+    background: #4a1f3c;
+    color: #fce7f3;
+}
+
+.session-alice .message-outgoing,
+.session-alice .btn-primary,
+.session-alice .btn-record {
+    border-color: rgba(249, 168, 212, 0.5);
+    background: linear-gradient(135deg, #ec4899, #be185d);
+}
+
+.session-bob .message-incoming {
+    background: #4a2d18;
+    color: #ffedd5;
+}
+
+.session-bob .message-outgoing,
+.session-bob .btn-primary,
+.session-bob .btn-record {
+    border-color: rgba(253, 186, 116, 0.5);
+    background: linear-gradient(135deg, #d97706, #9a3412);
+}
+
+.session-alice .btn-stop {
+    background: #9d174d;
+}
+
+.session-bob .btn-stop {
+    background: #78350f;
+}
+
+.session-alice .btn-primary:hover:not(:disabled),
+.session-alice .btn-record:hover:not(:disabled) {
+    background: linear-gradient(135deg, #f472b6, #db2777);
+}
+
+.session-bob .btn-primary:hover:not(:disabled),
+.session-bob .btn-record:hover:not(:disabled) {
+    background: linear-gradient(135deg, #f59e0b, #c2410c);
+}
+
 .message-text {
     white-space: pre-wrap;
 }
@@ -176,6 +264,10 @@ main {
 }
 
 .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
     width: 100%;
     min-height: 50px;
     padding: 13px 16px;
@@ -185,16 +277,37 @@ main {
     font-size: 1rem;
     font-weight: 750;
     cursor: pointer;
-    transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+    box-shadow: 0 8px 22px rgba(2, 6, 23, 0.2);
+    transition: transform 160ms ease, background 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
 }
 
 .btn:hover:not(:disabled) {
     transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(2, 6, 23, 0.3);
 }
 
 .btn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+.btn[hidden] {
+    display: none;
+}
+
+.record-button {
+    width: 142px;
+    height: 142px;
+    min-height: 142px;
+    flex-direction: column;
+    border-radius: 50%;
+    font-size: 1rem;
+}
+
+.record-button .btn-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
 }
 
 .btn-record { background: #dc2626; box-shadow: 0 8px 24px rgba(220, 38, 38, 0.2); }
@@ -205,6 +318,18 @@ main {
 .btn-primary:hover:not(:disabled) { background: #3b82f6; }
 .btn-secondary { background: #334155; }
 .btn-secondary:hover:not(:disabled) { background: #475569; }
+
+.btn-icon {
+    display: inline-grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 14px;
+    line-height: 1;
+}
 
 .review-section {
     display: flex;
@@ -238,6 +363,11 @@ textarea {
 textarea:focus {
     border-color: #60a5fa;
     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.16);
+}
+
+.input-hint {
+    color: #718198;
+    font-size: 0.72rem;
 }
 
 .action-buttons {
