@@ -93,6 +93,11 @@ def index() -> FileResponse:
     return FileResponse(PARTICIPANT_DIR / "index.html")
 
 
+@app.get("/karty.pdf")
+def get_karty_pdf() -> FileResponse:
+    return FileResponse(BASE_DIR / "karty.pdf", media_type="application/pdf")
+
+
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
