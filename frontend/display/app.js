@@ -1,4 +1,3 @@
-let audioEnabled = false;
 const displayConfig = window.DisplayConfig
     ? window.DisplayConfig.getDisplayConfig(window.location.search)
     : {
@@ -14,13 +13,6 @@ const getMessageLabel = window.DisplayConfig
         : "Odpowiedź";
 document.getElementById("leftTitle").textContent = displayConfig.leftName;
 document.getElementById("rightTitle").textContent = displayConfig.rightName;
-
-const enableAudioButton = document.getElementById("enableAudio");
-enableAudioButton.addEventListener("click", () => {
-    audioEnabled = true;
-    enableAudioButton.hidden = true;
-});
-
 
 function connectSession(sessionId, messagesElementId) {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -39,28 +31,6 @@ function connectSession(sessionId, messagesElementId) {
         const message = JSON.parse(event.data);
 
         console.log(`Display event [${sessionId}]:`, message);
-
-        if (message.type === "audio_ready") {
-            if (!audioEnabled) {
-                console.warn("Dźwięk nie został jeszcze włączony.");
-                return;
-            }
-
-            const audio = new Audio(
-                new URL(message.audio_url, window.location.origin).href
-            );
-
-            console.log("Odtwarzam audio:", audio.src);
-
-            audio.play().catch((error) => {
-                console.error(
-                    `Błąd odtwarzania audio [${sessionId}]:`,
-                    error
-                );
-            });
-
-            return;
-        }
 
         if (
             message.type !== "user_message" &&

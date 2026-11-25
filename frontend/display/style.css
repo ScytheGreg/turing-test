@@ -199,58 +199,6 @@ body {
     }
 }
 
-/* Przycisk aktywacji dźwięku */
-#enableAudio {
-    position: fixed;
-
-    top: 22px;
-    left: 22px;
-
-    z-index: 1000;
-
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 13px 20px 13px 15px;
-
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 999px;
-
-    background: rgba(15, 23, 42, 0.72);
-    backdrop-filter: blur(14px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-    color: white;
-
-    font-size: 16px;
-    font-weight: 600;
-
-    cursor: pointer;
-    transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
-}
-
-.audio-button-icon {
-    width: 25px;
-    height: 25px;
-    padding: 5px;
-    border-radius: 50%;
-    background: #60a5fa;
-    fill: none;
-    stroke: #07111f;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.8;
-}
-
-#enableAudio:hover {
-    background: rgba(30, 64, 175, 0.86);
-    border-color: rgba(147, 197, 253, 0.75);
-    transform: translateY(-1px);
-}
-
-#enableAudio[hidden] {
-    display: none;
-}
-
 /* Projektor / mniejszy ekran */
 @media (max-width: 1000px) {
     .panel {
