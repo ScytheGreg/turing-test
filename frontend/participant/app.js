@@ -49,17 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const transcriptResponse = await fetch(`${apiBase}/transcript`, {
-                method: "PUT",
+            const response = await fetch(`${apiBase}/message`, {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text }),
             });
-
-            if (!transcriptResponse.ok) {
-                throw new Error("Nie udało się zapisać wiadomości.");
-            }
-
-            const response = await fetch(`${apiBase}/send`, { method: "POST" });
             const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.detail || "Nie udało się wysłać wiadomości.");
