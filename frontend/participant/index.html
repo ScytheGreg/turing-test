@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turing Test — Uczestnik</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <div class="container">
@@ -13,7 +13,7 @@
                 <p class="eyebrow">TURING TEST</p>
                 <h1 id="sessionTitle">Rozmowa</h1>
             </div>
-            <div id="statusBadge" class="badge idle">Stan: Gotowy</div>
+            <div id="statusBadge" class="badge idle">Łączenie...</div>
         </header>
 
         <main>
@@ -24,44 +24,31 @@
                 </div>
                 <div id="messages" class="messages" aria-live="polite">
                     <div id="emptyState" class="empty-state">
-                        Rozpocznij rozmowę, nagrywając pierwszą wiadomość.
+                        Wpisz wiadomość, aby rozpocząć rozmowę.
                     </div>
                 </div>
             </section>
 
-            <!-- Sekcja kontroli nagrywania -->
-            <section class="controls-section">
-                <button id="recordButton" class="btn record-button btn-record" type="button">
-                    <span class="btn-icon" aria-hidden="true">●</span>
-                    <span>Nagraj</span>
-                </button>
-                <button id="stopButton" class="btn record-button btn-stop" type="button" hidden>
-                    <span class="btn-icon" aria-hidden="true">■</span>
-                    <span>Zatrzymaj</span>
-                </button>
-            </section>
-
-            <!-- Sekcja podglądu i edycji transkrypcji -->
-            <section id="reviewSection" class="review-section" hidden>
-                <label for="transcriptInput">Rozpoznany tekst (możesz edytować):</label>
-                <textarea id="transcriptInput" rows="4"></textarea>
-                <p class="input-hint">Enter wysyła wiadomość · Shift + Enter dodaje nową linię</p>
-
-                <div class="action-buttons">
-                    <button id="reRecordButton" class="btn btn-secondary" type="button">
-                        <span class="btn-icon" aria-hidden="true">↻</span>
-                        <span>Nagraj ponownie</span>
-                    </button>
-                    <button id="sendButton" class="btn btn-primary" type="button">
-                        <span class="btn-icon" aria-hidden="true">↗</span>
+            <form id="messageForm" class="message-form">
+                <label for="messageInput">Wiadomość</label>
+                <div class="composer">
+                    <textarea
+                        id="messageInput"
+                        placeholder="Napisz wiadomość..."
+                        rows="3"
+                        disabled
+                    ></textarea>
+                    <button id="sendButton" class="btn btn-primary" type="submit" disabled>
                         <span>Wyślij</span>
+                        <span class="btn-icon" aria-hidden="true">↗</span>
                     </button>
                 </div>
-            </section>
+                <p class="input-hint">Enter wysyła wiadomość · Shift + Enter dodaje nową linię</p>
+            </form>
 
         </main>
     </div>
 
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=6"></script>
 </body>
 </html>

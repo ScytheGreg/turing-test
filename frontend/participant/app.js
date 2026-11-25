@@ -1,226 +1,86 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-    // 1. Odczytanie identyfikatora sesji z URL (domyślnie 'alice')
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = (urlParams.get("session") || "bob").toLowerCase();
-
+    const apiBase = `/api/session/${sessionId}`;
     const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(
         `${wsProtocol}//${window.location.host}/ws/${sessionId}`
     );
 
-    // Wyświetlenie nazwy wybranej sesji w nagłówku
     const headerTitle = document.getElementById("sessionTitle");
-    if (headerTitle) {
-        headerTitle.textContent = `Rozmowa: ${sessionId.toUpperCase()}`;
-    }
-
-    // Adres bazowy dla wybranych endpointów sesji
-    const apiBase = `/api/session/${sessionId}`;
-
-    // Elementy UI
     const statusBadge = document.getElementById("statusBadge");
-    const recordButton = document.getElementById("recordButton");
-    const stopButton = document.getElementById("stopButton");
-    const reviewSection = document.getElementById("reviewSection");
-    const transcriptInput = document.getElementById("transcriptInput");
-    const reRecordButton = document.getElementById("reRecordButton");
+    const messageForm = document.getElementById("messageForm");
+    const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
     const messagesElement = document.getElementById("messages");
     const emptyState = document.getElementById("emptyState");
-    let stateRequestToken = 0;
 
+    headerTitle.textContent = `Rozmowa: ${sessionId.toUpperCase()}`;
     document.body.classList.add(
         sessionId === "alice" ? "session-alice" : "session-bob",
     );
 
-    // Rejestracja zdarzeń
-    recordButton.addEventListener("click", startRecording);
-    stopButton.addEventListener("click", stopRecording);
-    reRecordButton.addEventListener("click", cancelRecording);
-    sendButton.addEventListener("click", sendMessage);
-    transcriptInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
+    messageForm.addEventListener("submit", sendMessage);
 
-            if (!sendButton.disabled) {
-                sendButton.click();
-            }
+    async function sendMessage(event) {
+        event.preventDefault();
+
+        const text = messageInput.value.trim();
+        if (!text || sendButton.disabled) {
+            return;
         }
-    });
 
-    // Pobranie stanu przy starcie
-    fetchState();
+        if (ws.readyState !== WebSocket.OPEN) {
+            statusBadge.textContent = "Brak połączenia z serwerem";
+            return;
+        }
 
-    async function fetchState() {
-        const requestToken = stateRequestToken;
+        sendButton.disabled = true;
+        messageInput.disabled = true;
+        statusBadge.className = "badge sending";
+        statusBadge.textContent = "Wysyłanie...";
 
         try {
-            const res = await fetch(`${apiBase}/state`);
-            const data = await res.json();
+            ws.send(JSON.stringify({ text }));
 
-            if (requestToken !== stateRequestToken) {
-                return;
-            }
-
-            updateUI(data.state, data.transcript, data.answer);
-        } catch (err) {
-            console.error("Błąd pobierania stanu:", err);
-        }
-    }
-
-    async function startRecording() {
-        stateRequestToken += 1;
-
-        try {
-            recordButton.disabled = true;
-            const res = await fetch(`${apiBase}/record/start`, { method: "POST" });
-            const data = await res.json();
-
-            if (res.ok) {
-                updateUI(data.state || "recording");
-            } else {
-                alert(data.detail || "Nie udało się rozpocząć nagrywania.");
-                fetchState();
-            }
-        } catch (err) {
-            console.error("Błąd startu nagrywania:", err);
-            fetchState();
-        }
-    }
-
-    async function stopRecording() {
-        stateRequestToken += 1;
-
-        try {
-            stopButton.disabled = true;
-            updateUI("transcribing");
-
-            const res = await fetch(`${apiBase}/record/stop`, { method: "POST" });
-            const data = await res.json();
-
-            if (res.ok) {
-                updateUI(data.state || "review", data.transcript);
-            } else {
-                alert(data.detail || "Błąd rozpoznawania mowy.");
-                fetchState();
-            }
-        } catch (err) {
-            console.error("Błąd zatrzymywania nagrywania:", err);
-            fetchState();
-        }
-    }
-
-    async function cancelRecording() {
-        stateRequestToken += 1;
-
-        try {
-            const res = await fetch(`${apiBase}/cancel`, { method: "POST" });
-            const data = await res.json();
-            updateUI(res.ok ? data.state || "idle" : "idle");
-        } catch (err) {
-            console.error("Błąd anulowania:", err);
-            updateUI("idle");
-        }
-    }
-
-    async function sendMessage() {
-        try {
-            sendButton.disabled = true;
-            reRecordButton.disabled = true;
-
-            const text = transcriptInput.value.trim();
-            if (!text) {
-                return;
-            }
-
-            if (ws.readyState !== WebSocket.OPEN) {
-                alert("Połączenie z serwerem nie jest gotowe.");
-                return;
-            }
-
-            ws.send(JSON.stringify({
-                text: text
-            }));
             if (sessionId === "bob") {
-                updateUI("idle");
-                 return;
+                messageInput.value = "";
+                setReady();
+                return;
             }
-            await fetch(`${apiBase}/transcript`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text })
+
+            const transcriptResponse = await fetch(`${apiBase}/transcript`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text }),
             });
 
-            updateUI("sending");
-
-            const res = await fetch(`${apiBase}/send`, { method: "POST" });
-            const data = await res.json();
-
-            if (res.ok) {
-                updateUI("idle");
-
-                if (data.audio_path) {
-                    const audio = new Audio(data.audio_path);
-                    audio.play().catch(err => console.error("Błąd odtwarzania audio:", err));
-                }
-            } else {
-                alert("Błąd podczas wysyłania wiadomości.");
-                fetchState();
+            if (!transcriptResponse.ok) {
+                throw new Error("Nie udało się zapisać wiadomości.");
             }
-        } catch (err) {
-            console.error("Błąd wysyłania:", err);
-            fetchState();
+
+            const response = await fetch(`${apiBase}/send`, { method: "POST" });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.detail || "Nie udało się wysłać wiadomości.");
+            }
+
+            messageInput.value = "";
+            setReady();
+        } catch (error) {
+            console.error("Błąd wysyłania wiadomości:", error);
+            statusBadge.className = "badge error";
+            statusBadge.textContent = "Nie udało się wysłać";
         } finally {
             sendButton.disabled = false;
-            reRecordButton.disabled = false;
+            messageInput.disabled = false;
+            messageInput.focus();
         }
     }
 
-    function updateUI(state, transcript = null, answer = null) {
-        const normalizedState = (state || "idle").toLowerCase();
-
-        statusBadge.className = `badge ${normalizedState}`;
-        recordButton.disabled = normalizedState !== "idle";
-        stopButton.disabled = normalizedState !== "recording";
-
-        const stateLabels = {
-            idle: "Stan: Gotowy",
-            recording: "Stan: Nagrywanie...",
-            transcribing: "Stan: Transkrypcja...",
-            review: "Stan: Sprawdź tekst",
-            sending: "Stan: Wysyłanie..."
-        };
-        statusBadge.textContent = stateLabels[normalizedState] || `Stan: ${normalizedState}`;
-
-        if (normalizedState === "idle") {
-            recordButton.hidden = false;
-            stopButton.hidden = true;
-            reviewSection.hidden = true;
-        } else if (normalizedState === "recording") {
-            recordButton.hidden = true;
-            stopButton.hidden = false;
-            reviewSection.hidden = true;
-        } else if (normalizedState === "transcribing") {
-            recordButton.hidden = true;
-            stopButton.hidden = true;
-            reviewSection.hidden = true;
-        } else if (normalizedState === "review") {
-            recordButton.hidden = true;
-            stopButton.hidden = true;
-            reviewSection.hidden = false;
-            if (transcript !== null) {
-                transcriptInput.value = transcript;
-            }
-        } else if (normalizedState === "sending") {
-            recordButton.hidden = true;
-            stopButton.hidden = true;
-            reviewSection.hidden = true;
-        }
-
-        if (answer) {
-            appendMessage("incoming", answer);
-        }
+    function setReady() {
+        statusBadge.className = "badge idle";
+        statusBadge.textContent = "Gotowy";
     }
 
     function appendMessage(direction, text) {
@@ -244,18 +104,16 @@ document.addEventListener("DOMContentLoaded", () => {
         messagesElement.appendChild(messageElement);
         messagesElement.scrollTop = messagesElement.scrollHeight;
     }
+
     ws.onopen = () => {
-        console.log("WebSocket connected:", sessionId);
+        setReady();
+        messageInput.disabled = false;
+        sendButton.disabled = false;
+        messageInput.focus();
     };
 
     ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
-
-        console.log("WebSocket event:", message);
-
-        if (message.type === "connected") {
-            console.log("Connected to session:", message.session_id);
-        }
 
         if (message.type === "user_message") {
             appendMessage("outgoing", message.text);
@@ -267,7 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     ws.onclose = () => {
-        console.log("WebSocket disconnected");
+        statusBadge.className = "badge error";
+        statusBadge.textContent = "Rozłączono";
+        messageInput.disabled = true;
+        sendButton.disabled = true;
     };
 
     ws.onerror = (error) => {
