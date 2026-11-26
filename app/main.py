@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -8,9 +9,21 @@ from pydantic import BaseModel
 from app.conversation.controller import ConversationController
 from app.realtime.manager import ConnectionManager
 
+AI_THINKING_DELAY_SECONDS = 2
+AI_RESPONSE_MIN_DELAY_SECONDS = 4
+AI_RESPONSE_CHARACTERS_PER_SECOND = 10
+
 
 class MessageRequest(BaseModel):
     text: str
+
+
+async def ai_sleep(answer_length: int) -> None:
+    delay = max(
+        answer_length / AI_RESPONSE_CHARACTERS_PER_SECOND,
+        AI_RESPONSE_MIN_DELAY_SECONDS,
+    )
+    await asyncio.sleep(delay)
 
 
 app = FastAPI(title="Turing Test")
@@ -83,11 +96,21 @@ def health() -> dict[str, str]:
 @app.post("/api/session/{session_id}/message")
 async def send_message(session_id: str, data: MessageRequest) -> dict[str, str]:
     ctrl = get_controller(session_id)
+    text = data.text.strip()
+    if not text:
+        raise HTTPException(
+            status_code=422,
+            detail="Wiadomość użytkownika nie może być pusta.",
+        )
+
+    await asyncio.sleep(AI_THINKING_DELAY_SECONDS)
 
     try:
-        answer = ctrl.send(data.text)
+        answer = ctrl.send(text)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    await ai_sleep(len(answer))
 
     await connection_manager.send_to_session(
         session_id.lower(),
