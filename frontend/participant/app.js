@@ -21,6 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     messageForm.addEventListener("submit", sendMessage);
+    messageInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" || event.shiftKey || event.isComposing) {
+            return;
+        }
+
+        event.preventDefault();
+        messageForm.requestSubmit();
+    });
 
     async function sendMessage(event) {
         event.preventDefault();

@@ -75,10 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     messageInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            messageForm.requestSubmit();
+        if (event.key !== "Enter" || event.shiftKey || event.isComposing) {
+            return;
         }
+
+        event.preventDefault();
+        messageForm.requestSubmit();
     });
 
     function addMessage(sender, text) {
