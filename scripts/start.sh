@@ -22,7 +22,6 @@ echo
 echo "[2/3] Sprawdzam konfigurację..."
 
 source .venv/bin/activate
-source scripts/env.sh
 
 uv run python scripts/check_setup.py
 

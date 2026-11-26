@@ -2,10 +2,10 @@
 
 ## Project Structure & Module Organization
 
-- `app/` contains the Python application: FastAPI entrypoints in `app/main.py`, configuration in `app/config.py`, conversation orchestration in `app/conversation/`, and integrations for LLM, speech-to-text, text-to-speech, audio, and realtime behavior in their respective subpackages.
+- `app/` contains the Python application: FastAPI entrypoints in `app/main.py`, configuration in `app/config.py`, conversation orchestration in `app/conversation/`, and integrations for LLM and realtime behavior in their respective subpackages.
 - `frontend/` contains the browser clients: `participant/`, `human/`, `display/`, and `host/`, each with its own HTML, JavaScript, and CSS.
-- `tests/` contains pytest unit and integration tests. `scripts/` contains startup, environment-check, and manual hardware/service smoke-test utilities.
-- `models/` stores local Piper voice assets. Keep secrets in `.env`; do not commit credentials, recordings, or generated temporary files.
+- `tests/` contains pytest unit and integration tests. `scripts/` contains startup, environment-check, and manual service smoke-test utilities.
+- Keep secrets in `.env`; do not commit credentials or generated temporary files.
 
 ## Build, Test, and Development Commands
 
@@ -18,11 +18,10 @@ uv run pytest
 Run the setup checks before exercising hardware or external services:
 
 ```bash
-source scripts/env.sh
 uv run python scripts/check_setup.py
 ```
 
-Start the local server with `./scripts/start.sh`, or directly with `uv run uvicorn app.main:app --host 0.0.0.0 --port 8000`. The startup path expects CUDA, a configured microphone, Piper models, `DEEPSEEK_API_KEY`, and a running Cloudflare Tunnel.
+Start the local server with `./scripts/start.sh`, or directly with `uv run uvicorn app.main:app --host 0.0.0.0 --port 8000`. The startup path expects `DEEPSEEK_API_KEY` and a running Cloudflare Tunnel.
 
 ## Coding Style & Naming Conventions
 
@@ -38,4 +37,4 @@ Existing commits are short, imperative-style descriptions (for example, `Display
 
 ## Security & Configuration Tips
 
-Review `.env` and `scripts/env.sh` locally before running the app. Treat `/participant` as an operator-only interface because it can invoke the DeepSeek API. Use `/api/health` and `/docs` for local verification, and avoid exposing development credentials or debug artifacts through the public tunnel.
+Review `.env` locally before running the app. Treat `/participant` as an operator-only interface because it can invoke the DeepSeek API. Use `/api/health` and `/docs` for local verification, and avoid exposing development credentials or debug artifacts through the public tunnel.
