@@ -1,4 +1,4 @@
-from app.conversation.service import ConversationService
+from app.conversation.service import SYSTEM_MESSAGE, ConversationService
 
 
 class FakeLLM:
@@ -24,7 +24,7 @@ def test_conversation_keeps_history():
     assert answer2 == "To jest odpowiedź testowa."
 
     assert conversation.messages == [
-        {"role": "system", "content": "Odpowiadaj krótko po polsku."},
+        {"role": "system", "content": SYSTEM_MESSAGE},
         {"role": "user", "content": "Cześć!"},
         {"role": "assistant", "content": "To jest odpowiedź testowa."},
         {"role": "user", "content": "Jak masz na imię?"},
@@ -49,5 +49,5 @@ def test_reset_clears_conversation():
     conversation.reset()
 
     assert conversation.messages == [
-        {"role": "system", "content": "Odpowiadaj krótko po polsku."},
+        {"role": "system", "content": SYSTEM_MESSAGE},
     ]
